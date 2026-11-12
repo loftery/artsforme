@@ -27,54 +27,54 @@
     <h1>Настройки</h1>
     <p class="sub">Тема, синхронизация, данные</p>
 
-    <div class="card">
-      <h3>Тема и шрифт</h3>
-      <p style="font-size:13px; color:var(--muted); margin-bottom:12px">
+    <div class="card" style="margin-bottom:20px;">
+      <h3 style="margin-top:0; margin-bottom:12px;">Тема и шрифт</h3>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">
         Каждая тема меняет палитру и шрифт под игру.
       </p>
-      <div id="themeGrid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px"></div>
+      <div id="themeGrid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px;"></div>
     </div>
 
-    <div class="card">
-      <h3>Синхронизация (Supabase)</h3>
-      <p style="font-size:13px; color:var(--muted); margin-bottom:12px">
+    <div class="card" style="margin-bottom:20px;">
+      <h3 style="margin-top:0; margin-bottom:12px;">Синхронизация (Supabase)</h3>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">
         По умолчанию данные хранятся только в этом браузере. Чтобы рисунки и прогресс были на ПК и телефоне одновременно — подключи бесплатный Supabase.
       </p>
-      <div class="field">
-        <label>Supabase URL</label>
-        <input type="text" id="sbUrl" placeholder="https://xxxx.supabase.co">
+      <div class="field" style="margin-bottom:14px;">
+        <label style="display:block; font-size:12px; color:var(--muted); margin-bottom:5px; font-weight:700;">Supabase URL</label>
+        <input type="text" id="sbUrl" placeholder="https://xxxx.supabase.co" style="width:100%; padding:10px; border-radius:10px; border:2px solid var(--line); background:var(--bg); color:var(--text); outline:none;">
       </div>
-      <div class="field">
-        <label>Supabase anon key (или Publishable key)</label>
-        <input type="text" id="sbKey" placeholder="eyJhbGci... или sb_publishable_...">
+      <div class="field" style="margin-bottom:16px;">
+        <label style="display:block; font-size:12px; color:var(--muted); margin-bottom:5px; font-weight:700;">Supabase anon key (или Publishable key)</label>
+        <input type="text" id="sbKey" placeholder="eyJhbGci... или sb_publishable_..." style="width:100%; padding:10px; border-radius:10px; border:2px solid var(--line); background:var(--bg); color:var(--text); outline:none;">
       </div>
-      <div style="display:flex; gap:8px">
-        <button class="btn btn-ghost btn-block" id="sbClear">Отключить</button>
-        <button class="btn btn-primary btn-block" id="sbSave">Подключить</button>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-ghost btn-block" id="sbClear" style="flex:1; padding:12px; border-radius:10px; font-weight:700; cursor:pointer; background:transparent; color:var(--text); border:2px solid var(--line);">Отключить</button>
+        <button class="btn btn-primary btn-block" id="sbSave" style="flex:1; padding:12px; border-radius:10px; font-weight:700; cursor:pointer; background:var(--accent); color:#fff; border:none;">Подключить</button>
       </div>
-      <p style="font-size:12px; color:var(--muted); margin-top:10px">
-        Статус: <span id="sbStatus" style="font-weight:700; color:var(--accent)">Не подключено</span>
+      <p style="font-size:12px; color:var(--muted); margin-top:12px;">
+        Статус: <span id="sbStatus" style="font-weight:700; color:var(--accent);">Не подключено</span>
       </p>
     </div>
 
-    <div class="card">
-      <h3>Экспорт и импорт</h3>
-      <p style="font-size:13px; color:var(--muted); margin-bottom:12px">
+    <div class="card" style="margin-bottom:20px;">
+      <h3 style="margin-top:0; margin-bottom:12px;">Экспорт и импорт</h3>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">
         Резервная копия прогресса и задач в JSON. Сами картинки хранятся в Supabase или локально.
       </p>
-      <div style="display:flex; gap:8px">
-        <button class="btn btn-ghost btn-block" id="exportBtn">Экспорт</button>
-        <button class="btn btn-ghost btn-block" id="importBtn">Импорт</button>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-ghost btn-block" id="exportBtn" style="flex:1; padding:12px; border-radius:10px; font-weight:700; cursor:pointer; background:transparent; color:var(--text); border:2px solid var(--line);">Экспорт</button>
+        <button class="btn btn-ghost btn-block" id="importBtn" style="flex:1; padding:12px; border-radius:10px; font-weight:700; cursor:pointer; background:transparent; color:var(--text); border:2px solid var(--line);">Импорт</button>
       </div>
       <input type="file" id="importFile" accept=".json" style="display:none">
     </div>
 
-    <div class="card">
-      <h3>Сброс</h3>
-      <p style="font-size:13px; color:var(--muted); margin-bottom:12px">
+    <div class="card" style="margin-bottom:20px;">
+      <h3 style="margin-top:0; margin-bottom:12px;">Сброс</h3>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">
         Удаляет весь прогресс, задачи и XP. Рисунки в галерее останутся.
       </p>
-      <button class="btn btn-ghost btn-block" id="resetBtn" style="color:#c82a2a">Сбросить прогресс</button>
+      <button class="btn btn-ghost btn-block" id="resetBtn" style="width:100%; padding:12px; border-radius:10px; font-weight:700; cursor:pointer; background:transparent; color:#c82a2a; border:2px solid #c82a2a;">Сбросить прогресс</button>
     </div>
   </div>
 </div>
@@ -104,12 +104,12 @@ function renderThemes(){
   wrap.innerHTML = Object.entries(APP_THEMES.THEMES).map(([id,t])=>`
     <button class="theme-card ${id===cur?'active':''}" data-theme="${id}"
       style="padding:12px; border-radius:10px; border:2px solid ${id===cur?'var(--accent)':'var(--line)'};
-             background:${t.vars['--card']}; color:${t.vars['--text']}; text-align:left; cursor:pointer">
-      <div style="font-weight:800; font-size:13px">${t.name}</div>
-      <div style="display:flex; gap:4px; margin-top:8px">
-        <span style="width:16px;height:16px;border-radius:4px;background:${t.vars['--accent']}"></span>
-        <span style="width:16px;height:16px;border-radius:4px;background:${t.vars['--accent2']}"></span>
-        <span style="width:16px;height:16px;border-radius:4px;background:${t.vars['--bg']};border:1px solid ${t.vars['--line']}"></span>
+             background:${t.vars['--card']}; color:${t.vars['--text']}; text-align:left; cursor:pointer; transition:all .2s;">
+      <div style="font-weight:800; font-size:13px;">${t.name}</div>
+      <div style="display:flex; gap:6px; margin-top:10px;">
+        <span style="width:16px; height:16px; border-radius:4px; background:${t.vars['--accent']};"></span>
+        <span style="width:16px; height:16px; border-radius:4px; background:${t.vars['--accent2']};"></span>
+        <span style="width:16px; height:16px; border-radius:4px; background:${t.vars['--bg']}; border:1px solid ${t.vars['--line']};"></span>
       </div>
     </button>
   `).join('');
