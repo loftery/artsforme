@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Галерея — Путь Художника</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><div class="brand-mark">A</div><span>Путь Художника</span></div>
+  <button class="btn btn-primary" id="addBtn">+ Добавить</button>
+</div>
+
+<nav class="sidebar">
+  <a href="index.html"><span class="icon icon-home"></span> Дашборд</a>
+  <a href="learn.html"><span class="icon icon-book"></span> Обучение</a>
+  <a href="tasks.html"><span class="icon icon-task"></span> Задачи</a>
+  <a href="gallery.html"><span class="icon icon-image"></span> Галерея</a>
+  <a href="styles.html"><span class="icon icon-palette"></span> Стили</a>
+  <a href="ideas.html"><span class="icon icon-bulb"></span> Идеи</a>
+  <a href="settings.html"><span class="icon icon-settings"></span> Настройки</a>
+</nav>
+
+<div class="main-wrap">
+  <div class="content">
+    <h1>Галерея</h1>
+    <p class="sub">Твои рисунки. Каждый привязан к уроку и категории.</p>
+
+    <div class="task-filters" id="catTabs">
+      <button class="filter-chip active" data-cat="all">Все</button>
+      <button class="filter-chip" data-cat="hand">От руки</button>
+      <button class="filter-chip" data-cat="ibis">Ibis</button>
+      <button class="filter-chip" data-cat="krita">Krita</button>
+    </div>
+
+    <div id="galleryWrap" class="gallery-grid"></div>
+    <div id="emptyWrap" class="empty" style="display:none">
+      <h3>Пока пусто</h3>
+      <p>Нажми «+ Добавить», чтобы загрузить первый рисунок</p>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="index.html"><span class="icon icon-home"></span>Главная</a>
+  <a href="learn.html"><span class="icon icon-book"></span>Уроки</a>
+  <a href="tasks.html"><span class="icon icon-task"></span>Задачи</a>
+  <a href="gallery.html"><span class="icon icon-image"></span>Галерея</a>
+  <a href="settings.html"><span class="icon icon-settings"></span>Ещё</a>
+</nav>
+
+<!-- Модалка добавления -->
+<div class="modal-bg" id="addModal">
+  <div class="modal">
+    <h2>Добавить рисунок</h2>
+
+    <div class="field">
+      <label>Файл</label>
+      <input type="file" id="fileInput" accept="image/*">
+    </div>
+    <div id="preview" style="margin-bottom:14px"></div>
+
+    <div class="field">
+      <label>Название</label>
+      <input type="text" id="titleInput" placeholder="Например: Рыцарь в кубе">
+    </div>
+
+    <div class="field">
+      <label>Категория</label>
+      <select id="catSelect">
+        <option value="hand">От руки</option>
+        <option value="ibis">Ibis Paint</option>
+        <option value="krita">Krita</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Урок (необязательно)</label>
+      <select id="lessonSelect">
+        <option value="">— Без привязки —</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Заметка</label>
+      <textarea id="notesInput" placeholder="Что получилось, что нет..."></textarea>
+    </div>
+
+    <div style="display:flex; gap:8px">
+      <button class="btn btn-ghost btn-block" id="cancelBtn">Отмена</button>
+      <button class="btn btn-primary btn-block" id="saveBtn">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Просмотр -->
+<div class="modal-bg" id="viewModal">
+  <div class="modal" style="max-width:700px">
+    <h2 id="viewTitle"></h2>
+    <img id="viewImg" style="width:100%; border-radius:10px; margin-bottom:12px" src="" alt="">
+    <p id="viewInfo" style="font-size:13px; color:var(--muted)"></p>
+    <button class="btn btn-ghost btn-block" id="closeView" style="margin-top:12px">Закрыть</button>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/themes.js"></script>
+<script src="js/app.js"></script>
+<script>
+let currentCat = 'all';
+let pendingFile = null;
+let pendingDataUrl = null;
+
+function onReady(){
+  initLessonSelect();
+  renderGallery();
+  bindEvents();
+}
+
+function initLessonSelect(){
+  const sel = document.getElementById('lessonSelect');
+  sel.innerHTML = '<option value="">— Без привязки —</option>' +
+    APP_DATA.PROGRAM.map(l=>
+      `<optgroup label="Уровень ${l.id}: ${l.title}">${
+        l.lessons.map(ls=>`<option value="${ls.id}">${ls.title}</option>`).join('')
+      }</optgroup>`
+    ).join('');
+}
+
+function bindEvents(){
+  document.getElementById('addBtn').addEventListener('click', ()=>{
+    resetForm();
+    document.getElementById('addModal').classList.add('show');
+  });
+  document.getElementById('cancelBtn').addEventListener('click', ()=>{
+    document.getElementById('addModal').classList.remove('show');
+  });
+  document.getElementById('closeView').addEventListener('click', ()=>{
+    document.getElementById('viewModal').classList.remove('show');
+  });
+  document.getElementById('fileInput').addEventListener('change', e=>{
+    const f = e.target.files[0];
+    if(!f) return;
+    if(!f.type.startsWith('image/')){ APP.showToast('Это не картинка'); return; }
+    pendingFile = f;
+    const r = new FileReader();
+    r.onload = ev=>{
+      pendingDataUrl = ev.target.result;
+      document.getElementById('preview').innerHTML =
+        `<img src="${pendingDataUrl}" style="max-width:100%; max-height:160px; border-radius:8px">`;
+    };
+    r.readAsDataURL(f);
+  });
+  document.getElementById('saveBtn').addEventListener('click', saveImage);
+
+  document.getElementById('catTabs').addEventListener('click', e=>{
+    const chip = e.target.closest('.filter-chip');
+    if(!chip) return;
+    currentCat = chip.dataset.cat;
+    document.querySelectorAll('#catTabs .filter-chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    renderGallery();
+  });
+}
+
+function resetForm(){
+  pendingFile = null;
+  pendingDataUrl = null;
+  document.getElementById('fileInput').value = '';
+  document.getElementById('preview').innerHTML = '';
+  document.getElementById('titleInput').value = '';
+  document.getElementById('notesInput').value = '';
+  document.getElementById('catSelect').value = 'hand';
+  document.getElementById('lessonSelect').value = '';
+}
+
+async function saveImage(){
+  if(!pendingFile){ APP.showToast('Выбери файл'); return; }
+  const title = document.getElementById('titleInput').value.trim();
+  const cat = document.getElementById('catSelect').value;
+  const lesson = document.getElementById('lessonSelect').value;
+  const notes = document.getElementById('notesInput').value.trim();
+
+  const compressed = await compressImage(pendingFile);
+  const id = 'img_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+  await APP.dbPut({id, data: compressed});
+
+  const meta = APP.store.get('meta', []);
+  meta.push({id, title, cat, lesson, notes, created: Date.now()});
+  APP.store.set('meta', meta);
+
+  APP.addXP(15, 'рисунок загружен');
+  document.getElementById('addModal').classList.remove('show');
+  renderGallery();
+}
+
+function compressImage(file, maxSize=1400){
+  return new Promise((res, rej)=>{
+    const r = new FileReader();
+    r.onload = e=>{
+      const img = new Image();
+      img.onload = ()=>{
+        let {width, height} = img;
+        if(width > maxSize || height > maxSize){
+          const ratio = Math.min(maxSize/width, maxSize/height);
+          width = Math.round(width*ratio);
+          height = Math.round(height*ratio);
+        }
+        const c = document.createElement('canvas');
+        c.width = width; c.height = height;
+        c.getContext('2d').drawImage(img, 0, 0, width, height);
+        res(c.toDataURL('image/jpeg', 0.85));
+      };
+      img.onerror = rej;
+      img.src = e.target.result;
+    };
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+async function renderGallery(){
+  const meta = APP.store.get('meta', []);
+  let list = meta;
+  if(currentCat !== 'all') list = list.filter(m=>m.cat === currentCat);
+  list.sort((a,b)=>b.created - a.created);
+
+  const wrap = document.getElementById('galleryWrap');
+  const empty = document.getElementById('emptyWrap');
+  wrap.innerHTML = '';
+
+  if(!list.length){
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  for(const m of list){
+    const rec = await APP.dbGet(m.id);
+    if(!rec) continue;
+    const lesson = m.lesson ? APP_DATA.PROGRAM.flatMap(l=>l.lessons).find(l=>l.id === m.lesson) : null;
+    const card = document.createElement('div');
+    card.className = 'gallery-card';
+    card.innerHTML = `
+      <button class="del">&#10005;</button>
+      <img src="${rec.data}" alt="">
+      <div class="meta">
+        <span class="cat-tag cat-${m.cat}">${APP.CAT_LABEL[m.cat]}</span>
+        <div class="name">${m.title || 'Без названия'}</div>
+        <div style="font-size:10px; color:var(--muted)">${lesson ? lesson.title : APP.formatDate(m.created)}</div>
+      </div>
+    `;
+    card.addEventListener('click', e=>{
+      if(e.target.classList.contains('del')) return;
+      openView(m, rec.data);
+    });
+    card.querySelector('.del').addEventListener('click', async e=>{
+      e.stopPropagation();
+      if(!confirm('Удалить рисунок?')) return;
+      await APP.dbDel(m.id);
+      const updated = APP.store.get('meta', []).filter(x=>x.id !== m.id);
+      APP.store.set('meta', updated);
+      renderGallery();
+    });
+    wrap.appendChild(card);
+  }
+}
+
+function openView(meta, dataUrl){
+  document.getElementById('viewTitle').textContent = meta.title || 'Без названия';
+  document.getElementById('viewImg').src = dataUrl;
+  const lesson = meta.lesson ? APP_DATA.PROGRAM.flatMap(l=>l.lessons).find(l=>l.id === meta.lesson) : null;
+  document.getElementById('viewInfo').innerHTML =
+    `${APP.CAT_LABEL[meta.cat]} · ${APP.formatDate(meta.created)}` +
+    (lesson ? `<br>Урок: ${lesson.title}` : '') +
+    (meta.notes ? `<br><br>${meta.notes}` : '');
+  document.getElementById('viewModal').classList.add('show');
+}
+
+APP.boot();
+</script>
+</body>
+</html>

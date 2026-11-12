@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Настройки — Путь Художника</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><div class="brand-mark">A</div><span>Путь Художника</span></div>
+</div>
+
+<nav class="sidebar">
+  <a href="index.html"><span class="icon icon-home"></span> Дашборд</a>
+  <a href="learn.html"><span class="icon icon-book"></span> Обучение</a>
+  <a href="tasks.html"><span class="icon icon-task"></span> Задачи</a>
+  <a href="gallery.html"><span class="icon icon-image"></span> Галерея</a>
+  <a href="styles.html"><span class="icon icon-palette"></span> Стили</a>
+  <a href="ideas.html"><span class="icon icon-bulb"></span> Идеи</a>
+  <a href="settings.html"><span class="icon icon-settings"></span> Настройки</a>
+</nav>
+
+<div class="main-wrap">
+  <div class="content">
+    <h1>Настройки</h1>
+    <p class="sub">Тема, синхронизация, данные</p>
+
+    <div class="card">
+      <h3>Тема и шрифт</h3>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:12px">
+        Каждая тема меняет палитру и шрифт под игру.
+      </p>
+      <div id="themeGrid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px"></div>
+    </div>
+
+    <div class="card">
+      <h3>Синхронизация (Supabase)</h3>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:12px">
+        По умолчанию данные хранятся только в этом браузере. Чтобы рисунки и прогресс были на ПК и телефоне одновременно — подключи бесплатный Supabase.
+      </p>
+      <div class="field">
+        <label>Supabase URL</label>
+        <input type="text" id="sbUrl" placeholder="https://xxxx.supabase.co">
+      </div>
+      <div class="field">
+        <label>Supabase anon key</label>
+        <input type="text" id="sbKey" placeholder="eyJhbGci...">
+      </div>
+      <div style="display:flex; gap:8px">
+        <button class="btn btn-ghost btn-block" id="sbClear">Отключить</button>
+        <button class="btn btn-primary btn-block" id="sbSave">Подключить</button>
+      </div>
+      <p style="font-size:12px; color:var(--muted); margin-top:10px">
+        Инструкция: создай проект на supabase.com, выполни SQL из README, скопируй URL и anon key сюда.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Экспорт и импорт</h3>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:12px">
+        Резервная копия прогресса и задач в JSON. Рисунки хранятся отдельно (IndexedDB) и сюда не входят.
+      </p>
+      <div style="display:flex; gap:8px">
+        <button class="btn btn-ghost btn-block" id="exportBtn">Экспорт</button>
+        <button class="btn btn-ghost btn-block" id="importBtn">Импорт</button>
+      </div>
+      <input type="file" id="importFile" accept=".json" style="display:none">
+    </div>
+
+    <div class="card">
+      <h3>Сброс</h3>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:12px">
+        Удаляет весь прогресс, задачи и XP. Рисунки в галерее останутся.
+      </p>
+      <button class="btn btn-ghost btn-block" id="resetBtn" style="color:#c82a2a">Сбросить прогресс</button>
+    </div>
+
+    <div class="card">
+      <h3>О проекте</h3>
+      <p style="font-size:13px; color:var(--muted)">
+        Путь Художника — учебный трекер для тех, кто рисует «для себя». Без серверов, без регистрации. Работает на GitHub Pages.
+      </p>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="index.html"><span class="icon icon-home"></span>Главная</a>
+  <a href="learn.html"><span class="icon icon-book"></span>Уроки</a>
+  <a href="tasks.html"><span class="icon icon-task"></span>Задачи</a>
+  <a href="gallery.html"><span class="icon icon-image"></span>Галерея</a>
+  <a href="settings.html"><span class="icon icon-settings"></span>Ещё</a>
+</nav>
+
+<script src="js/data.js"></script>
+<script src="js/themes.js"></script>
+<script src="js/app.js"></script>
+<script>
+function onReady(){
+  renderThemes();
+  loadSupabase();
+  bindEvents();
+}
+
+function renderThemes(){
+  const wrap = document.getElementById('themeGrid');
+  const cur = APP.state.theme;
+  wrap.innerHTML = Object.entries(APP_THEMES.THEMES).map(([id,t])=>`
+    <button class="theme-card ${id===cur?'active':''}" data-theme="${id}"
+      style="padding:12px; border-radius:10px; border:2px solid ${id===cur?'var(--accent)':'var(--line)'};
+             background:${t.vars['--card']}; color:${t.vars['--text']}; text-align:left; cursor:pointer">
+      <div style="font-weight:800; font-size:13px">${t.name}</div>
+      <div style="display:flex; gap:4px; margin-top:8px">
+        <span style="width:16px;height:16px;border-radius:4px;background:${t.vars['--accent']}"></span>
+        <span style="width:16px;height:16px;border-radius:4px;background:${t.vars['--accent2']}"></span>
+        <span style="width:16px;height:16px;border-radius:4px;background:${t.vars['--bg']};border:1px solid ${t.vars['--line']}"></span>
+      </div>
+    </button>
+  `).join('');
+
+  wrap.querySelectorAll('.theme-card').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.dataset.theme;
+      APP.state.theme = id;
+      APP_THEMES.applyTheme(id);
+      renderThemes();
+      APP.showToast('Тема: ' + APP_THEMES.THEMES[id].name);
+    });
+  });
+}
+
+function loadSupabase(){
+  const cfg = APP.store.get('supabase', null);
+  if(cfg){
+    document.getElementById('sbUrl').value = cfg.url || '';
+    document.getElementById('sbKey').value = cfg.key || '';
+  }
+}
+
+function bindEvents(){
+  document.getElementById('sbSave').addEventListener('click', ()=>{
+    const url = document.getElementById('sbUrl').value.trim();
+    const key = document.getElementById('sbKey').value.trim();
+    if(!url || !key){ APP.showToast('Заполни оба поля'); return; }
+    APP.store.set('supabase', {url, key});
+    APP.showToast('Supabase сохранён. Перезагрузи страницу.');
+  });
+  document.getElementById('sbClear').addEventListener('click', ()=>{
+    localStorage.removeItem('ap_supabase');
+    document.getElementById('sbUrl').value = '';
+    document.getElementById('sbKey').value = '';
+    APP.showToast('Supabase отключён');
+  });
+
+  document.getElementById('exportBtn').addEventListener('click', ()=>{
+    const data = {
+      progress: APP.state.progress,
+      tasks: APP.state.tasks,
+      xp: APP.state.xp,
+      streak: APP.state.streak,
+      meta: APP.store.get('meta', []),
+      exported: new Date().toISOString()
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'artist-path-backup-' + Date.now() + '.json';
+    a.click();
+    APP.showToast('Экспортировано');
+  });
+
+  document.getElementById('importBtn').addEventListener('click', ()=>{
+    document.getElementById('importFile').click();
+  });
+  document.getElementById('importFile').addEventListener('change', e=>{
+    const f = e.target.files[0];
+    if(!f) return;
+    const r = new FileReader();
+    r.onload = ev=>{
+      try{
+        const data = JSON.parse(ev.target.result);
+        if(data.progress) APP.state.progress = data.progress;
+        if(data.tasks) APP.state.tasks = data.tasks;
+        if(data.xp) APP.state.xp = data.xp;
+        if(data.streak) APP.state.streak = data.streak;
+        if(data.meta) APP.store.set('meta', data.meta);
+        APP.saveProgress();
+        APP.saveTasks();
+        APP.store.set('xp', APP.state.xp);
+        APP.store.set('streak', APP.state.streak);
+        APP.showToast('Импортировано. Перезагрузи страницу.');
+      }catch(err){
+        APP.showToast('Ошибка чтения файла');
+      }
+    };
+    r.readAsText(f);
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', ()=>{
+    if(!confirm('Сбросить весь прогресс, задачи и XP?')) return;
+    localStorage.removeItem('ap_progress');
+    localStorage.removeItem('ap_tasks');
+    localStorage.removeItem('ap_xp');
+    localStorage.removeItem('ap_streak');
+    APP.showToast('Сброшено. Перезагрузи страницу.');
+  });
+}
+
+APP.boot();
+</script>
+</body>
+</html>

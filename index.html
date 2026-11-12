@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Путь Художника — Дашборд</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><div class="brand-mark">A</div><span>Путь Художника</span></div>
+</div>
+
+<nav class="sidebar">
+  <a href="index.html"><span class="icon icon-home"></span> Дашборд</a>
+  <a href="learn.html"><span class="icon icon-book"></span> Обучение</a>
+  <a href="tasks.html"><span class="icon icon-task"></span> Задачи</a>
+  <a href="gallery.html"><span class="icon icon-image"></span> Галерея</a>
+  <a href="styles.html"><span class="icon icon-palette"></span> Стили</a>
+  <a href="ideas.html"><span class="icon icon-bulb"></span> Идеи</a>
+  <a href="settings.html"><span class="icon icon-settings"></span> Настройки</a>
+</nav>
+
+<div class="main-wrap">
+  <div class="content">
+    <h1>Дашборд</h1>
+    <p class="sub">Твой прогресс, XP и streak</p>
+
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="val" id="xpVal">0</div>
+        <div class="lab">XP</div>
+      </div>
+      <div class="stat-box">
+        <div class="val" id="streakVal">0</div>
+        <div class="lab">Дней подряд</div>
+      </div>
+      <div class="stat-box">
+        <div class="val" id="lessonsVal">0</div>
+        <div class="lab">Уроков</div>
+      </div>
+      <div class="stat-box">
+        <div class="val" id="tasksVal">0</div>
+        <div class="lab">Задач</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Прогресс обучения</h3>
+      <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px">
+        <span>Пройдено</span>
+        <span id="progressText" style="color:var(--accent); font-weight:700">0 / 20</span>
+      </div>
+      <div class="xp-bar"><div class="xp-fill" id="progressFill" style="width:0%"></div></div>
+      <p style="font-size:12px; color:var(--muted); margin:8px 0 0">
+        Уровень открывается, когда предыдущий пройден на 80%.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Быстрые ссылки</h3>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px">
+        <a href="learn.html" class="btn btn-primary">Продолжить обучение</a>
+        <a href="tasks.html" class="btn btn-ghost">Задачи</a>
+        <a href="ideas.html" class="btn btn-ghost">Идеи от скуки</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Совет</h3>
+      <p style="font-size:13px; color:var(--muted)" id="tipBox">Загрузка...</p>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="index.html"><span class="icon icon-home"></span>Главная</a>
+  <a href="learn.html"><span class="icon icon-book"></span>Уроки</a>
+  <a href="tasks.html"><span class="icon icon-task"></span>Задачи</a>
+  <a href="gallery.html"><span class="icon icon-image"></span>Галерея</a>
+  <a href="settings.html"><span class="icon icon-settings"></span>Ещё</a>
+</nav>
+
+<script src="js/data.js"></script>
+<script src="js/themes.js"></script>
+<script src="js/app.js"></script>
+<script>
+const TIPS = [
+  "Если персонаж мёртвый — проблема не в текстуре, а в свете.",
+  "Не рисуй детали, пока форма не сидит.",
+  "Складка — зигзаг, а не прямая.",
+  "Силуэт: закрась чёрным. Узнаётся?",
+  "Один урок — минимум 3-5 рисунков."
+];
+
+function onReady(){
+  const s = APP.state;
+  document.getElementById('xpVal').textContent = s.xp;
+  document.getElementById('streakVal').textContent = s.streak.count;
+  document.getElementById('lessonsVal').textContent = Object.keys(s.progress).length;
+  document.getElementById('tasksVal').textContent = Object.values(s.tasks).filter(v=>v==='done').length;
+
+  const p = APP.calcLevel();
+  document.getElementById('progressText').textContent = p.done + ' / ' + p.total;
+  document.getElementById('progressFill').style.width = p.percent + '%';
+
+  document.getElementById('tipBox').textContent = TIPS[Math.floor(Math.random()*TIPS.length)];
+}
+
+APP.boot();
+</script>
+</body>
+</html>
