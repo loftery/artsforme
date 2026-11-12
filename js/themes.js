@@ -104,7 +104,7 @@ const THEMES = {
 function applyTheme(themeId) {
   const t = THEMES[themeId] || THEMES.default;
   
-  // Загружаем шрифт
+  // 1. Загружаем шрифт (если его еще нет на странице)
   const linkId = 'gfont-' + themeId;
   if (!document.getElementById(linkId) && t.googleFont) {
     const link = document.createElement('link');
@@ -114,13 +114,18 @@ function applyTheme(themeId) {
     document.head.appendChild(link);
   }
   
-  // Применяем переменные
+  // 2. Применяем шрифт ко всему body
   document.body.style.fontFamily = t.font;
+  
+  // 3. Прокидываем цвета в CSS-переменные
   for (const [k,v] of Object.entries(t.vars)) {
     document.documentElement.style.setProperty(k, v);
   }
+  
+  // 4. Запоминаем тему
   document.body.dataset.theme = themeId;
   localStorage.setItem('artist_theme', themeId);
 }
 
+// Экспортируем наружу, чтобы app.js и settings.html могли это использовать
 window.APP_THEMES = { THEMES, applyTheme };
