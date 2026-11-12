@@ -7,11 +7,9 @@
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
 <div class="topbar">
   <div class="brand"><div class="brand-mark">A</div><span>Путь Художника</span></div>
 </div>
-
 <nav class="sidebar">
   <a href="index.html"><span class="icon icon-home"></span> Дашборд</a>
   <a href="learn.html"><span class="icon icon-book"></span> Обучение</a>
@@ -21,7 +19,6 @@
   <a href="ideas.html"><span class="icon icon-bulb"></span> Идеи</a>
   <a href="settings.html"><span class="icon icon-settings"></span> Настройки</a>
 </nav>
-
 <div class="main-wrap">
   <div class="content">
     <h1>Настройки</h1>
@@ -29,39 +26,30 @@
 
     <div class="card" style="margin-bottom:20px;">
       <h3 style="margin-top:0; margin-bottom:12px;">Тема и шрифт</h3>
-      <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">
-        Каждая тема меняет палитру и шрифт под игру.
-      </p>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">Каждая тема меняет палитру и шрифт под игру.</p>
       <div id="themeGrid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px;"></div>
     </div>
 
     <div class="card" style="margin-bottom:20px;">
       <h3 style="margin-top:0; margin-bottom:12px;">Синхронизация (Supabase)</h3>
-      <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">
-        По умолчанию данные хранятся только в этом браузере. Чтобы рисунки и прогресс были на ПК и телефоне одновременно — подключи бесплатный Supabase.
-      </p>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">По умолчанию данные хранятся только в этом браузере.</p>
       <div class="field" style="margin-bottom:14px;">
         <label style="display:block; font-size:12px; color:var(--muted); margin-bottom:5px; font-weight:700;">Supabase URL</label>
         <input type="text" id="sbUrl" placeholder="https://xxxx.supabase.co" style="width:100%; padding:10px; border-radius:10px; border:2px solid var(--line); background:var(--bg); color:var(--text); outline:none;">
       </div>
       <div class="field" style="margin-bottom:16px;">
-        <label style="display:block; font-size:12px; color:var(--muted); margin-bottom:5px; font-weight:700;">Supabase anon key (или Publishable key)</label>
-        <input type="text" id="sbKey" placeholder="eyJhbGci... или sb_publishable_..." style="width:100%; padding:10px; border-radius:10px; border:2px solid var(--line); background:var(--bg); color:var(--text); outline:none;">
+        <label style="display:block; font-size:12px; color:var(--muted); margin-bottom:5px; font-weight:700;">Supabase anon key</label>
+        <input type="text" id="sbKey" placeholder="eyJhbGci..." style="width:100%; padding:10px; border-radius:10px; border:2px solid var(--line); background:var(--bg); color:var(--text); outline:none;">
       </div>
       <div style="display:flex; gap:10px;">
         <button class="btn btn-ghost btn-block" id="sbClear" style="flex:1; padding:12px; border-radius:10px; font-weight:700; cursor:pointer; background:transparent; color:var(--text); border:2px solid var(--line);">Отключить</button>
         <button class="btn btn-primary btn-block" id="sbSave" style="flex:1; padding:12px; border-radius:10px; font-weight:700; cursor:pointer; background:var(--accent); color:#fff; border:none;">Подключить</button>
       </div>
-      <p style="font-size:12px; color:var(--muted); margin-top:12px;">
-        Статус: <span id="sbStatus" style="font-weight:700; color:var(--accent);">Не подключено</span>
-      </p>
+      <p style="font-size:12px; color:var(--muted); margin-top:12px;">Статус: <span id="sbStatus" style="font-weight:700; color:var(--accent);">Не подключено</span></p>
     </div>
 
     <div class="card" style="margin-bottom:20px;">
       <h3 style="margin-top:0; margin-bottom:12px;">Экспорт и импорт</h3>
-      <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">
-        Резервная копия прогресса и задач в JSON. Сами картинки хранятся в Supabase или локально.
-      </p>
       <div style="display:flex; gap:10px;">
         <button class="btn btn-ghost btn-block" id="exportBtn" style="flex:1; padding:12px; border-radius:10px; font-weight:700; cursor:pointer; background:transparent; color:var(--text); border:2px solid var(--line);">Экспорт</button>
         <button class="btn btn-ghost btn-block" id="importBtn" style="flex:1; padding:12px; border-radius:10px; font-weight:700; cursor:pointer; background:transparent; color:var(--text); border:2px solid var(--line);">Импорт</button>
@@ -71,14 +59,10 @@
 
     <div class="card" style="margin-bottom:20px;">
       <h3 style="margin-top:0; margin-bottom:12px;">Сброс</h3>
-      <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">
-        Удаляет весь прогресс, задачи и XP. Рисунки в галерее останутся.
-      </p>
       <button class="btn btn-ghost btn-block" id="resetBtn" style="width:100%; padding:12px; border-radius:10px; font-weight:700; cursor:pointer; background:transparent; color:#c82a2a; border:2px solid #c82a2a;">Сбросить прогресс</button>
     </div>
   </div>
 </div>
-
 <nav class="bottom-nav">
   <a href="index.html"><span class="icon icon-home"></span>Главная</a>
   <a href="learn.html"><span class="icon icon-book"></span>Уроки</a>
@@ -97,7 +81,6 @@ function onReady(){
   loadSupabase();
   bindEvents();
 }
-
 function renderThemes(){
   const wrap = document.getElementById('themeGrid');
   const cur = APP.state.theme;
@@ -113,7 +96,6 @@ function renderThemes(){
       </div>
     </button>
   `).join('');
-
   wrap.querySelectorAll('.theme-card').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const id = btn.dataset.theme;
@@ -124,15 +106,12 @@ function renderThemes(){
     });
   });
 }
-
 function loadSupabase(){
   const cfg = APP.store.get('supabase', null);
   const statusEl = document.getElementById('sbStatus');
-  
   if(cfg && cfg.url && cfg.key){
     document.getElementById('sbUrl').value = cfg.url;
     document.getElementById('sbKey').value = cfg.key;
-    
     if (window.supabase) {
       statusEl.textContent = 'Проверка связи...';
       statusEl.style.color = 'var(--muted)';
@@ -158,23 +137,18 @@ function loadSupabase(){
     statusEl.style.color = 'var(--accent)';
   }
 }
-
 function bindEvents(){
   document.getElementById('sbSave').addEventListener('click', async ()=>{
     const url = document.getElementById('sbUrl').value.trim();
     const key = document.getElementById('sbKey').value.trim();
     const statusEl = document.getElementById('sbStatus');
-    
     if(!url || !key){ APP.showToast('Заполни оба поля'); return; }
-    
     APP.store.set('supabase', {url, key});
     statusEl.textContent = 'Проверка связи...';
     statusEl.style.color = 'var(--muted)';
-    
     try {
       const testClient = window.supabase.createClient(url, key);
       const { error } = await testClient.from('profile').select('count', { count: 'exact', head: true }).limit(1);
-      
       if (error && error.code !== 'PGRST116') {
          statusEl.textContent = 'Ошибка: ' + error.message;
          statusEl.style.color = '#c82a2a';
@@ -191,7 +165,6 @@ function bindEvents(){
       APP.showToast('Ошибка подключения');
     }
   });
-
   document.getElementById('sbClear').addEventListener('click', ()=>{
     localStorage.removeItem('ap_supabase');
     document.getElementById('sbUrl').value = '';
@@ -200,16 +173,8 @@ function bindEvents(){
     document.getElementById('sbStatus').style.color = 'var(--accent)';
     APP.showToast('Supabase отключён');
   });
-
   document.getElementById('exportBtn').addEventListener('click', ()=>{
-    const data = {
-      progress: APP.state.progress,
-      tasks: APP.state.tasks,
-      xp: APP.state.xp,
-      streak: APP.state.streak,
-      meta: APP.store.get('meta', []),
-      exported: new Date().toISOString()
-    };
+    const data = { progress: APP.state.progress, tasks: APP.state.tasks, xp: APP.state.xp, streak: APP.state.streak, meta: APP.store.get('meta', []) };
     const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -217,11 +182,9 @@ function bindEvents(){
     a.click();
     APP.showToast('Экспортировано');
   });
-
   document.getElementById('importBtn').addEventListener('click', ()=>{
     document.getElementById('importFile').click();
   });
-  
   document.getElementById('importFile').addEventListener('change', e=>{
     const f = e.target.files[0];
     if(!f) return;
@@ -234,11 +197,8 @@ function bindEvents(){
         if(data.xp) APP.state.xp = data.xp;
         if(data.streak) APP.state.streak = data.streak;
         if(data.meta) APP.store.set('meta', data.meta);
-        
-        APP.saveProgress();
-        APP.saveTasks();
-        APP.store.set('xp', APP.state.xp);
-        APP.store.set('streak', APP.state.streak);
+        APP.saveProgress(); APP.saveTasks();
+        APP.store.set('xp', APP.state.xp); APP.store.set('streak', APP.state.streak);
         APP.showToast('Импортировано. Перезагрузи страницу.');
       }catch(err){
         APP.showToast('Ошибка чтения файла');
@@ -246,17 +206,13 @@ function bindEvents(){
     };
     r.readAsText(f);
   });
-
   document.getElementById('resetBtn').addEventListener('click', ()=>{
     if(!confirm('Сбросить весь прогресс, задачи и XP?')) return;
-    localStorage.removeItem('ap_progress');
-    localStorage.removeItem('ap_tasks');
-    localStorage.removeItem('ap_xp');
-    localStorage.removeItem('ap_streak');
+    localStorage.removeItem('ap_progress'); localStorage.removeItem('ap_tasks');
+    localStorage.removeItem('ap_xp'); localStorage.removeItem('ap_streak');
     APP.showToast('Сброшено. Перезагрузи страницу.');
   });
 }
-
 APP.boot();
 </script>
 </body>
