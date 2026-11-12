@@ -1,5 +1,5 @@
 // ============================================
-// ХРАНИЛИЩЕ
+// ХРАНИЛИЩЕ (ЛОКАЛЬНОЕ)
 // ============================================
 const DB_NAME = 'ArtistPathDB';
 const DB_VERSION = 1;
@@ -22,27 +22,170 @@ function dbGet(id){return new Promise((res,rej)=>{const t=db.transaction('images
 function dbDel(id){return new Promise((res,rej)=>{const t=db.transaction('images','readwrite');t.objectStore('images').delete(id);t.oncomplete=res;t.onerror=rej;});}
 function dbAll(){return new Promise((res,rej)=>{const t=db.transaction('images','readonly');const r=t.objectStore('images').getAll();r.onsuccess=()=>res(r.result);r.onerror=rej;});}
 
-// Метаданные в localStorage
 const store = {
   get(key, def){ try{ return JSON.parse(localStorage.getItem('ap_'+key)) ?? def; }catch{ return def; } },
   set(key, val){ localStorage.setItem('ap_'+key, JSON.stringify(val)); }
 };
 
 // ============================================
+// SUPABASE (ОБЛАКО)
+// ============================================
+let supabase = null;
+let currentUserId = 'local_user'; // В идеале здесь должен быть UUID пользователя, но для личного сайта сгодится и такой
+
+async function initSupabase() {
+  const cfg = store.get('supabase', null);
+  if (cfg && cfg.url && cfg.key && window.supabase) {
+    try {
+      supabase = window.supabase.createClient(cfg.url, cfg.key);
+      
+      // Проверяем связь
+      const { error } = await supabase.from('profile').select('count', { count: 'exact', head: true }).limit(1);
+      if (error && error.code !== 'PGRST116') {
+         console.error('Ошибка подключения к Supabase:', error);
+      } else {
+         console.log('Supabase успешно подключен');
+         // Тянем данные из облака при старте
+         await pullFromCloud();
+      }
+    } catch (e) {
+      console.error('Ошибка инициализации Supabase', e);
+    }
+  }
+}
+
+// ============================================
 // СОСТОЯНИЕ
 // ============================================
 const state = {
-  progress: store.get('progress', {}),   // {lessonId: true}
-  tasks: store.get('tasks', {}),         // {taskId: 'done'|'inprogress'}
+  progress: store.get('progress', {}),
+  tasks: store.get('tasks', {}),
   streak: store.get('streak', {last:null, count:0}),
   xp: store.get('xp', 0),
   theme: localStorage.getItem('artist_theme') || 'default'
 };
 
-function saveProgress(){ store.set('progress', state.progress); }
-function saveTasks(){ store.set('tasks', state.tasks); }
-function saveStreak(){ store.set('streak', state.streak); }
-function saveXP(){ store.set('xp', state.xp); }
+function saveProgress(){ 
+  store.set('progress', state.progress); 
+  pushToCloud(); 
+}
+function saveTasks(){ 
+  store.set('tasks', state.tasks); 
+  pushToCloud(); 
+}
+function saveStreak(){ 
+  store.set('streak', state.streak); 
+  pushToCloud(); 
+}
+function saveXP(){ 
+  store.set('xp', state.xp); 
+  pushToCloud(); 
+}
+
+// ============================================
+// СИНХРОНИЗАЦИЯ
+// ============================================
+async function pushToCloud() {
+  if (!supabase) return;
+  try {
+    // Отправляем профиль (XP, Streak)
+    await supabase.from('profile').upsert({
+      user_id: currentUserId,
+      xp: state.xp,
+      streak_count: state.streak.count,
+      streak_last: state.streak.last,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'user_id' });
+
+    // Отправляем прогресс уроков
+    const progArray = Object.keys(state.progress).map(id => ({
+      user_id: currentUserId,
+      lesson_id: id,
+      done: true
+    }));
+    if (progArray.length > 0) {
+      await supabase.from('progress').upsert(progArray, { onConflict: 'user_id,lesson_id' });
+    }
+
+    // Отправляем задачи
+    const tasksArray = Object.keys(state.tasks).map(id => ({
+      user_id: currentUserId,
+      task_id: id,
+      status: state.tasks[id]
+    }));
+    if (tasksArray.length > 0) {
+      await supabase.from('tasks').upsert(tasksArray, { onConflict: 'user_id,task_id' });
+    }
+
+    // Отправляем метаданные галереи
+    const meta = store.get('meta', []);
+    const galleryArray = meta.map(m => ({
+      id: m.id,
+      user_id: currentUserId,
+      title: m.title,
+      cat: m.cat,
+      lesson: m.lesson,
+      notes: m.notes,
+      created: m.created
+    }));
+    if (galleryArray.length > 0) {
+      await supabase.from('gallery_meta').upsert(galleryArray, { onConflict: 'id' });
+    }
+  } catch (e) {
+    console.warn('Не удалось отправить данные в облако', e);
+  }
+}
+
+async function pullFromCloud() {
+  if (!supabase) return;
+  try {
+    // Забираем профиль
+    const { data: prof } = await supabase.from('profile').select('*').eq('user_id', currentUserId).single();
+    if (prof) {
+      state.xp = prof.xp || 0;
+      state.streak = { count: prof.streak_count || 0, last: prof.streak_last };
+    }
+
+    // Забираем прогресс
+    const { data: progs } = await supabase.from('progress').select('*').eq('user_id', currentUserId);
+    if (progs) {
+      state.progress = {};
+      progs.forEach(p => { if (p.done) state.progress[p.lesson_id] = true; });
+    }
+
+    // Забираем задачи
+    const { data: tsks } = await supabase.from('tasks').select('*').eq('user_id', currentUserId);
+    if (tsks) {
+      state.tasks = {};
+      tsks.forEach(t => { state.tasks[t.task_id] = t.status; });
+    }
+
+    // Забираем галерею
+    const { data: gal } = await supabase.from('gallery_meta').select('*').eq('user_id', currentUserId);
+    if (gal) {
+      // Сливаем с локальными метаданными
+      const localMeta = store.get('meta', []);
+      const cloudMeta = gal.map(g => ({
+        id: g.id, title: g.title, cat: g.cat, lesson: g.lesson, notes: g.notes, created: g.created
+      }));
+      // Убираем дубликаты по id
+      const merged = [...cloudMeta];
+      localMeta.forEach(lm => {
+        if (!merged.find(cm => cm.id === lm.id)) merged.push(lm);
+      });
+      store.set('meta', merged);
+    }
+
+    // Сохраняем локально
+    saveProgress(); saveTasks(); saveXP(); saveStreak();
+    console.log('Данные из облака загружены');
+    
+    // Если мы на странице, перерисовываем
+    if (typeof onReady === 'function') onReady();
+  } catch (e) {
+    console.warn('Не удалось загрузить данные из облака', e);
+  }
+}
 
 // ============================================
 // XP и STREAK
@@ -76,12 +219,8 @@ function calcLevel(){
 
 function isLessonDone(id){ return !!state.progress[id]; }
 function toggleLesson(id){
-  if(state.progress[id]){
-    delete state.progress[id];
-  } else {
-    state.progress[id] = true;
-    addXP(10, 'урок пройден');
-  }
+  if(state.progress[id]) delete state.progress[id];
+  else { state.progress[id] = true; addXP(10, 'урок пройден'); }
   saveProgress();
 }
 
@@ -121,25 +260,16 @@ function formatDate(ts){
 
 const CAT_LABEL = {hand:'От руки', ibis:'Ibis', krita:'Krita'};
 
-// ============================================
-// НАВИГАЦИЯ (подсветка активной)
-// ============================================
 function initNav(){
   const page = location.pathname.split('/').pop() || 'index.html';
   document.querySelectorAll('.sidebar a, .bottom-nav a').forEach(a=>{
     const href = a.getAttribute('href');
-    if(href === page || (page === '' && href === 'index.html'))
-      a.classList.add('active');
+    if(href === page || (page === '' && href === 'index.html')) a.classList.add('active');
   });
 }
 
-// ============================================
-// ТЕМА
-// ============================================
 function initTheme(){
-  if(window.APP_THEMES){
-    window.APP_THEMES.applyTheme(state.theme);
-  }
+  if(window.APP_THEMES) window.APP_THEMES.applyTheme(state.theme);
 }
 
 // ============================================
@@ -149,12 +279,18 @@ async function boot(){
   await initDB();
   initTheme();
   initNav();
+  
+  // Сначала показываем локальные данные
   if(typeof onReady === 'function') onReady();
+  
+  // Затем пробуем синхронизироваться с облаком
+  await initSupabase();
 }
 
 window.APP = {
   state, boot, addXP, toggleLesson, toggleTask,
   isLessonDone, isTaskDone, calcLevel,
   dbPut, dbGet, dbDel, dbAll, store,
-  showToast, formatDate, CAT_LABEL, saveProgress, saveTasks
+  showToast, formatDate, CAT_LABEL, saveProgress, saveTasks,
+  pushToCloud // Экспортируем, чтобы можно было вызвать вручную
 };
