@@ -26,8 +26,6 @@
   <div class="content">
     <h1>Стили</h1>
     <p class="sub">10 стилей. Что это, где встречается, что рисовать.</p>
-    
-    <!-- Вот сюда рендерятся карточки. У него уже есть класс для сетки, ничего лишнего не нужно -->
     <div id="stylesWrap" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px;"></div>
   </div>
 </div>
@@ -47,7 +45,8 @@
 <script>
 function onReady(){
   const wrap = document.getElementById('stylesWrap');
-
+  if(!wrap) return;
+  
   wrap.innerHTML = APP_DATA.STYLES.map(s=>`
     <div class="card" style="margin:0; padding:20px; background:var(--card); border:2px solid var(--line); border-radius:14px;">
       <h3 style="margin-top:0; margin-bottom:10px; font-size:17px; color:var(--accent);">${s.title}</h3>
