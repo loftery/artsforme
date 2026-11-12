@@ -3,60 +3,238 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Стили — Путь Художника</title>
-<style>
-  /* ВСТРОЕННЫЕ СТИЛИ (без папок) */
-  *{box-sizing:border-box}
-  body{margin:0; background:#faf8f4; color:#2a2520; font-family:sans-serif; padding:20px;}
-  h1{font-size:24px}
-  .card{background:#fff; border:2px solid #e8e0d5; border-radius:14px; padding:20px; margin-bottom:16px;}
-  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px;}
-  .tag{font-size:10px; font-weight:700; padding:3px 8px; border-radius:6px; background:rgba(200,85,61,.12); color:#c8553d; margin-right:6px;}
-  nav {margin-bottom: 20px; display: flex; gap: 10px;}
-  nav a {color: #c8553d; text-decoration: none; font-weight: bold;}
-</style>
+<title>Настройки — Путь Художника</title>
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<nav>
-  <a href="index.html">Главная</a> | 
-  <a href="styles.html">Стили</a> | 
-  <a href="settings.html">Настройки</a>
+<div class="topbar">
+  <div class="brand"><div class="brand-mark">A</div><span>Путь Художника</span></div>
+</div>
+
+<nav class="sidebar">
+  <a href="index.html"><span class="icon icon-home"></span> Дашборд</a>
+  <a href="learn.html"><span class="icon icon-book"></span> Обучение</a>
+  <a href="tasks.html"><span class="icon icon-task"></span> Задачи</a>
+  <a href="gallery.html"><span class="icon icon-image"></span> Галерея</a>
+  <a href="styles.html"><span class="icon icon-palette"></span> Стили</a>
+  <a href="ideas.html"><span class="icon icon-bulb"></span> Идеи</a>
+  <a href="settings.html"><span class="icon icon-settings"></span> Настройки</a>
 </nav>
 
-<h1>Стили</h1>
-<p>10 стилей. Что это, где встречается, что рисовать.</p>
+<div class="main-wrap">
+  <div class="content">
+    <h1>Настройки</h1>
+    <p class="sub">Тема, синхронизация, данные</p>
 
-<div class="grid" id="stylesWrap"></div>
-
-<script>
-  // ВСТРОЕННЫЕ ДАННЫЕ (без папки js)
-  const STYLES = [
-    { title:"Реализм", desc:"Точные пропорции, свет, тени. База для всего.", games:["—"], tips:"Начинай с формы, не с деталей." },
-    { title:"Скетч", desc:"Быстрые линии, штриховка. Ловит движение, а не детали.", games:["Hollow Knight"], tips:"30 секунд на позу. Не исправляй." },
-    { title:"Комикс", desc:"Толстый контур, штриховка, динамика.", games:["Ultrakill","Pressure"], tips:"Контур должен читаться без цвета." },
-    { title:"Мультяшный", desc:"Упрощённые формы, яркие цвета.", games:["Roblox","Deltarune"], tips:"Форма важнее текстуры." },
-    { title:"Пиксель-арт", desc:"Сетка, ограниченная палитра. 1 пиксель = 1 клетка.", games:["Undertale","OneShot"], tips:"Никакого сглаживания." },
-    { title:"Аниме", desc:"Большие глаза, линии, тени.", games:["Silksong"], tips:"Глаза — главное. Но форма головы важнее." },
-    { title:"Минимализм", desc:"Мало деталей, сила силуэта.", games:["OneShot","Hollow Knight"], tips:"Убери всё, что можно убрать." },
-    { title:"Готика", desc:"Мрачно, изящно, контраст.", games:["Hollow Knight","Silksong"], tips:"Тонкие линии, тёмные тени." },
-    { title:"Гранж", desc:"Грязно, жёстко, текстуры.", games:["Ultrakill","Pressure"], tips:"Не бойся грязи." },
-    { title:"Плоский", desc:"Без объёма, чистые цвета.", games:["Roblox","Deltarune"], tips:"Никаких градиентов." }
-  ];
-
-  // ВСТРОЕННЫЙ СКРИПТ (без папки js)
-  const wrap = document.getElementById('stylesWrap');
-  wrap.innerHTML = STYLES.map(s => `
     <div class="card">
-      <h3 style="margin-top:0; color:#c8553d;">${s.title}</h3>
-      <p style="font-size:14px; margin-bottom:12px;">${s.desc}</p>
-      <div style="margin-bottom:12px;">
-        ${s.games.map(g => `<span class="tag">${g}</span>`).join('')}
-      </div>
-      <p style="font-size:12px; color:#8a7f72;"><strong>Совет:</strong> ${s.tips}</p>
+      <h3>Тема и шрифт</h3>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:12px">Каждая тема меняет палитру и шрифт под игру.</p>
+      <div id="themeGrid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px;"></div>
     </div>
-  `).join('');
-</script>
 
+    <div class="card">
+      <h3>Синхронизация (Supabase)</h3>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:12px">По умолчанию данные хранятся только в этом браузере.</p>
+      <div class="field">
+        <label>Supabase URL</label>
+        <input type="text" id="sbUrl" placeholder="https://xxxx.supabase.co">
+      </div>
+      <div class="field">
+        <label>Supabase anon key</label>
+        <input type="text" id="sbKey" placeholder="eyJhbGci...">
+      </div>
+      <div style="display:flex; gap:8px">
+        <button class="btn btn-ghost btn-block" id="sbClear">Отключить</button>
+        <button class="btn btn-primary btn-block" id="sbSave">Подключить</button>
+      </div>
+      <p style="font-size:12px; color:var(--muted); margin-top:10px">Статус: <span id="sbStatus" style="font-weight:700; color:var(--accent)">Не подключено</span></p>
+    </div>
+
+    <div class="card">
+      <h3>Экспорт и импорт</h3>
+      <div style="display:flex; gap:8px">
+        <button class="btn btn-ghost btn-block" id="exportBtn">Экспорт</button>
+        <button class="btn btn-ghost btn-block" id="importBtn">Импорт</button>
+      </div>
+      <input type="file" id="importFile" accept=".json" style="display:none">
+    </div>
+
+    <div class="card">
+      <h3>Сброс</h3>
+      <button class="btn btn-ghost btn-block" id="resetBtn" style="color:#c82a2a">Сбросить прогресс</button>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="index.html"><span class="icon icon-home"></span>Главная</a>
+  <a href="learn.html"><span class="icon icon-book"></span>Уроки</a>
+  <a href="tasks.html"><span class="icon icon-task"></span>Задачи</a>
+  <a href="gallery.html"><span class="icon icon-image"></span>Галерея</a>
+  <a href="settings.html"><span class="icon icon-settings"></span>Ещё</a>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/data.js"></script>
+<script src="js/themes.js"></script>
+<script src="js/app.js"></script>
+<script>
+function onReady(){
+  renderThemes();
+  loadSupabase();
+  bindEvents();
+}
+
+function renderThemes(){
+  const wrap = document.getElementById('themeGrid');
+  const cur = APP.state.theme;
+  wrap.innerHTML = Object.entries(APP_THEMES.THEMES).map(([id,t])=>`
+    <button class="theme-card ${id===cur?'active':''}" data-theme="${id}"
+      style="padding:12px; border-radius:10px; border:2px solid ${id===cur?'var(--accent)':'var(--line)'};
+             background:${t.vars['--card']}; color:${t.vars['--text']}; text-align:left; cursor:pointer; transition:all .2s;">
+      <div style="font-weight:800; font-size:13px;">${t.name}</div>
+      <div style="display:flex; gap:4px; margin-top:8px;">
+        <span style="width:16px;height:16px;border-radius:4px;background:${t.vars['--accent']}"></span>
+        <span style="width:16px;height:16px;border-radius:4px;background:${t.vars['--accent2']}"></span>
+        <span style="width:16px;height:16px;border-radius:4px;background:${t.vars['--bg']};border:1px solid ${t.vars['--line']}"></span>
+      </div>
+    </button>
+  `).join('');
+
+  wrap.querySelectorAll('.theme-card').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.dataset.theme;
+      APP.state.theme = id;
+      APP_THEMES.applyTheme(id);
+      renderThemes();
+      APP.showToast('Тема: ' + APP_THEMES.THEMES[id].name);
+    });
+  });
+}
+
+function loadSupabase(){
+  const cfg = APP.store.get('supabase', null);
+  const statusEl = document.getElementById('sbStatus');
+  
+  if(cfg && cfg.url && cfg.key){
+    document.getElementById('sbUrl').value = cfg.url;
+    document.getElementById('sbKey').value = cfg.key;
+    
+    if (window.supabase) {
+      statusEl.textContent = 'Проверка связи...';
+      statusEl.style.color = 'var(--muted)';
+      try {
+        const test = window.supabase.createClient(cfg.url, cfg.key);
+        test.from('profile').select('count', { count: 'exact', head: true }).limit(1)
+          .then(({ error }) => {
+            if (error && error.code !== 'PGRST116') {
+              statusEl.textContent = 'Ошибка подключения';
+              statusEl.style.color = '#c82a2a';
+            } else {
+              statusEl.textContent = 'Подключено (Синхронизация включена)';
+              statusEl.style.color = '#4a9d7f';
+            }
+          });
+      } catch(e) {
+        statusEl.textContent = 'Ошибка конфигурации';
+        statusEl.style.color = '#c82a2a';
+      }
+    }
+  } else {
+    statusEl.textContent = 'Не подключено (Локальный режим)';
+    statusEl.style.color = 'var(--accent)';
+  }
+}
+
+function bindEvents(){
+  document.getElementById('sbSave').addEventListener('click', async ()=>{
+    const url = document.getElementById('sbUrl').value.trim();
+    const key = document.getElementById('sbKey').value.trim();
+    const statusEl = document.getElementById('sbStatus');
+    
+    if(!url || !key){ APP.showToast('Заполни оба поля'); return; }
+    
+    APP.store.set('supabase', {url, key});
+    statusEl.textContent = 'Проверка связи...';
+    statusEl.style.color = 'var(--muted)';
+    
+    try {
+      const testClient = window.supabase.createClient(url, key);
+      const { error } = await testClient.from('profile').select('count', { count: 'exact', head: true }).limit(1);
+      
+      if (error && error.code !== 'PGRST116') {
+         statusEl.textContent = 'Ошибка: ' + error.message;
+         statusEl.style.color = '#c82a2a';
+         APP.showToast('Ошибка Supabase');
+      } else {
+         statusEl.textContent = 'Успех! Синхронизация включена.';
+         statusEl.style.color = '#4a9d7f';
+         APP.showToast('Успех! Перезагрузка...');
+         setTimeout(() => location.reload(), 1500);
+      }
+    } catch (e) {
+      statusEl.textContent = 'Ошибка сети или ключа';
+      statusEl.style.color = '#c82a2a';
+      APP.showToast('Ошибка подключения');
+    }
+  });
+
+  document.getElementById('sbClear').addEventListener('click', ()=>{
+    localStorage.removeItem('ap_supabase');
+    document.getElementById('sbUrl').value = '';
+    document.getElementById('sbKey').value = '';
+    document.getElementById('sbStatus').textContent = 'Отключено';
+    document.getElementById('sbStatus').style.color = 'var(--accent)';
+    APP.showToast('Supabase отключён');
+  });
+
+  document.getElementById('exportBtn').addEventListener('click', ()=>{
+    const data = {
+      progress: APP.state.progress, tasks: APP.state.tasks,
+      xp: APP.state.xp, streak: APP.state.streak, meta: APP.store.get('meta', [])
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'artist-path-backup-' + Date.now() + '.json';
+    a.click();
+    APP.showToast('Экспортировано');
+  });
+
+  document.getElementById('importBtn').addEventListener('click', ()=>document.getElementById('importFile').click());
+  
+  document.getElementById('importFile').addEventListener('change', e=>{
+    const f = e.target.files[0];
+    if(!f) return;
+    const r = new FileReader();
+    r.onload = ev=>{
+      try{
+        const data = JSON.parse(ev.target.result);
+        if(data.progress) APP.state.progress = data.progress;
+        if(data.tasks) APP.state.tasks = data.tasks;
+        if(data.xp) APP.state.xp = data.xp;
+        if(data.streak) APP.state.streak = data.streak;
+        if(data.meta) APP.store.set('meta', data.meta);
+        APP.saveProgress(); APP.saveTasks();
+        APP.store.set('xp', APP.state.xp); APP.store.set('streak', APP.state.streak);
+        APP.showToast('Импортировано. Перезагрузи страницу.');
+      }catch(err){
+        APP.showToast('Ошибка чтения файла');
+      }
+    };
+    r.readAsText(f);
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', ()=>{
+    if(!confirm('Сбросить весь прогресс?')) return;
+    localStorage.removeItem('ap_progress'); localStorage.removeItem('ap_tasks');
+    localStorage.removeItem('ap_xp'); localStorage.removeItem('ap_streak');
+    APP.showToast('Сброшено. Перезагрузи страницу.');
+  });
+}
+
+APP.boot();
+</script>
 </body>
 </html>
