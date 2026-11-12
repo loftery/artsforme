@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Обучение — Путь Художника</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><div class="brand-mark">A</div><span>Путь Художника</span></div>
+</div>
+
+<nav class="sidebar">
+  <a href="index.html"><span class="icon icon-home"></span> Дашборд</a>
+  <a href="learn.html"><span class="icon icon-book"></span> Обучение</a>
+  <a href="tasks.html"><span class="icon icon-task"></span> Задачи</a>
+  <a href="gallery.html"><span class="icon icon-image"></span> Галерея</a>
+  <a href="styles.html"><span class="icon icon-palette"></span> Стили</a>
+  <a href="ideas.html"><span class="icon icon-bulb"></span> Идеи</a>
+  <a href="settings.html"><span class="icon icon-settings"></span> Настройки</a>
+</nav>
+
+<div class="main-wrap">
+  <div class="content">
+    <h1>Обучение</h1>
+    <p class="sub">Пять уровней. Не перескакивай. Уровень открывается, когда предыдущий пройден на 80%.</p>
+    <div id="levelsWrap"></div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="index.html"><span class="icon icon-home"></span>Главная</a>
+  <a href="learn.html"><span class="icon icon-book"></span>Уроки</a>
+  <a href="tasks.html"><span class="icon icon-task"></span>Задачи</a>
+  <a href="gallery.html"><span class="icon icon-image"></span>Галерея</a>
+  <a href="settings.html"><span class="icon icon-settings"></span>Ещё</a>
+</nav>
+
+<script src="js/data.js"></script>
+<script src="js/themes.js"></script>
+<script src="js/app.js"></script>
+<script>
+function onReady(){
+  renderLevels();
+}
+
+function levelLocked(levelId){
+  if(levelId === 1) return false;
+  const prev = APP_DATA.PROGRAM.find(l=>l.id === levelId-1);
+  if(!prev) return false;
+  const done = prev.lessons.filter(l=>APP.isLessonDone(l.id)).length;
+  return done / prev.lessons.length < 0.8;
+}
+
+function levelProgress(level){
+  const done = level.lessons.filter(l=>APP.isLessonDone(l.id)).length;
+  return { done, total: level.lessons.length, percent: Math.round(done/level.lessons.length*100) };
+}
+
+function renderLevels(){
+  const wrap = document.getElementById('levelsWrap');
+  wrap.innerHTML = APP_DATA.PROGRAM.map(level=>{
+    const p = levelProgress(level);
+    const locked = levelLocked(level.id);
+    const allDone = p.done === p.total;
+    return `
+      <div class="level-card" data-level="${level.id}">
+        <div class="level-head">
+          <div class="level-num ${allDone?'done':''}">${locked?'&#128274;':(allDone?'&#10003;':level.id)}</div>
+          <div class="level-title">
+            <h3>${level.title}${locked?' — закрыто':''}</h3>
+            <p>${level.desc} &middot; ${p.done}/${p.total}</p>
+          </div>
+          <div style="font-size:12px; color:var(--muted); font-weight:700">${p.percent}%</div>
+        </div>
+        <div class="level-body">
+          ${locked
+            ? `<p style="padding:14px 0; font-size:13px; color:var(--muted)">Пройди предыдущий уровень на 80%, чтобы открыть этот.</p>`
+            : level.lessons.map(lesson=>{
+                const done = APP.isLessonDone(lesson.id);
+                const taskCount = lesson.tasks ? lesson.tasks.length : 0;
+                return `
+                  <div class="lesson ${done?'done':''}" data-lesson="${lesson.id}">
+                    <button class="lesson-check">${done?'&#10003;':''}</button>
+                    <div class="lesson-body">
+                      <h4>${lesson.title}</h4>
+                      <div class="games">${lesson.games.join(' &middot; ')}</div>
+                      <p>${taskCount} ${taskCount===1?'задача':'задачи'} &middot; нажми на урок, чтобы увидеть задачи</p>
+                    </div>
+                  </div>
+                `;
+              }).join('')
+          }
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // раскрытие уровней
+  wrap.querySelectorAll('.level-head').forEach(head=>{
+    head.addEventListener('click', ()=>{
+      const card = head.parentElement;
+      card.querySelector('.level-body').classList.toggle('open');
+    });
+  });
+
+  // чекбоксы уроков
+  wrap.querySelectorAll('.lesson-check').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      e.stopPropagation();
+      const lessonEl = btn.closest('.lesson');
+      const id = lessonEl.dataset.lesson;
+      APP.toggleLesson(id);
+      renderLevels();
+    });
+  });
+}
+
+APP.boot();
+</script>
+</body>
+</html>

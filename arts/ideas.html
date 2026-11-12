@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Идеи — Путь Художника</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><div class="brand-mark">A</div><span>Путь Художника</span></div>
+</div>
+
+<nav class="sidebar">
+  <a href="index.html"><span class="icon icon-home"></span> Дашборд</a>
+  <a href="learn.html"><span class="icon icon-book"></span> Обучение</a>
+  <a href="tasks.html"><span class="icon icon-task"></span> Задачи</a>
+  <a href="gallery.html"><span class="icon icon-image"></span> Галерея</a>
+  <a href="styles.html"><span class="icon icon-palette"></span> Стили</a>
+  <a href="ideas.html"><span class="icon icon-bulb"></span> Идеи</a>
+  <a href="settings.html"><span class="icon icon-settings"></span> Настройки</a>
+</nav>
+
+<div class="main-wrap">
+  <div class="content">
+    <h1>Идеи от скуки</h1>
+    <p class="sub">Нажми кнопку — получи случайную задачу: игра + стиль + что рисовать.</p>
+
+    <div class="card">
+      <div class="field">
+        <label>Игра</label>
+        <select id="gameSel">
+          <option value="all">Любая</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Стиль</label>
+        <select id="styleSel">
+          <option value="all">Любой</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Сложность</label>
+        <select id="diffSel">
+          <option value="all">Любая</option>
+          <option value="low">Лёгкая</option>
+          <option value="medium">Средняя</option>
+          <option value="high">Сложная</option>
+        </select>
+      </div>
+      <button class="btn btn-primary btn-block" id="rollBtn">Сгенерировать идею</button>
+    </div>
+
+    <div id="ideaWrap"></div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="index.html"><span class="icon icon-home"></span>Главная</a>
+  <a href="learn.html"><span class="icon icon-book"></span>Уроки</a>
+  <a href="tasks.html"><span class="icon icon-task"></span>Задачи</a>
+  <a href="gallery.html"><span class="icon icon-image"></span>Галерея</a>
+  <a href="settings.html"><span class="icon icon-settings"></span>Ещё</a>
+</nav>
+
+<script src="js/data.js"></script>
+<script src="js/themes.js"></script>
+<script src="js/app.js"></script>
+<script>
+const GAMES_LIST = ['Roblox','Doors','Pressure','Hollow Knight','Silksong','Undertale','Deltarune','OneShot','Ultrakill'];
+const DIFF_LABEL = { low:'лёгкая', medium:'средняя', high:'сложная' };
+
+function onReady(){
+  const gs = document.getElementById('gameSel');
+  GAMES_LIST.forEach(g=>{
+    const o = document.createElement('option');
+    o.value = g; o.textContent = g;
+    gs.appendChild(o);
+  });
+  const ss = document.getElementById('styleSel');
+  APP_DATA.STYLES.forEach(s=>{
+    const o = document.createElement('option');
+    o.value = s.id; o.textContent = s.title;
+    ss.appendChild(o);
+  });
+  document.getElementById('rollBtn').addEventListener('click', roll);
+}
+
+function roll(){
+  const game = document.getElementById('gameSel').value;
+  const style = document.getElementById('styleSel').value;
+  const diff = document.getElementById('diffSel').value;
+
+  let pool = APP_DATA.CREATIVE_TASKS.slice();
+  if(game !== 'all') pool = pool.filter(t=>t.game === game);
+  if(style !== 'all') pool = pool.filter(t=>t.style === style);
+  if(diff !== 'all') pool = pool.filter(t=>t.difficulty === diff);
+
+  if(!pool.length){
+    document.getElementById('ideaWrap').innerHTML =
+      `<div class="empty"><h3>Нет идей с такими фильтрами</h3><p>Попробуй ослабить фильтры</p></div>`;
+    return;
+  }
+
+  const idea = pool[Math.floor(Math.random()*pool.length)];
+  const styleName = APP_DATA.STYLES.find(s=>s.id === idea.style)?.title || idea.style;
+  const isDone = APP.isTaskDone(idea.id);
+
+  document.getElementById('ideaWrap').innerHTML = `
+    <div class="card">
+      <div class="task-tags">
+        <span class="tag">${idea.game}</span>
+        <span class="tag">${styleName}</span>
+        <span class="tag diff-${idea.difficulty}">${DIFF_LABEL[idea.difficulty]}</span>
+      </div>
+      <h3 style="margin-top:8px">${idea.title}</h3>
+      <p style="font-size:14px; color:var(--muted)">${idea.desc}</p>
+      <div style="margin-top:12px; display:flex; gap:8px">
+        <button class="btn btn-ghost btn-block" id="rollAgain">Ещё</button>
+        <button class="btn btn-primary btn-block" id="markDone" ${isDone?'disabled':''}>
+          ${isDone ? 'Уже выполнена' : 'Выполнено'}
+        </button>
+      </div>
+    </div>
+  `;
+  document.getElementById('rollAgain').addEventListener('click', roll);
+  if(!isDone){
+    document.getElementById('markDone').addEventListener('click', ()=>{
+      APP.toggleTask(idea.id);
+      roll();
+    });
+  }
+}
+
+APP.boot();
+</script>
+</body>
+</html>
