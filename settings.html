@@ -53,7 +53,6 @@
         <button class="btn btn-primary btn-block" id="sbSave">Подключить</button>
       </div>
       <p style="font-size:12px; color:var(--muted); margin-top:10px">
-        Инструкция: создай проект на supabase.com, выполни SQL из README, скопируй URL и ключ сюда. 
         Статус: <span id="sbStatus" style="font-weight:700; color:var(--accent)">Не подключено</span>
       </p>
     </div>
@@ -61,7 +60,7 @@
     <div class="card">
       <h3>Экспорт и импорт</h3>
       <p style="font-size:13px; color:var(--muted); margin-bottom:12px">
-        Резервная копия прогресса и задач в JSON. Рисунки хранятся отдельно (IndexedDB) и сюда не входят.
+        Резервная копия прогресса и задач в JSON. Сами картинки хранятся в Supabase или локально.
       </p>
       <div style="display:flex; gap:8px">
         <button class="btn btn-ghost btn-block" id="exportBtn">Экспорт</button>
@@ -77,13 +76,6 @@
       </p>
       <button class="btn btn-ghost btn-block" id="resetBtn" style="color:#c82a2a">Сбросить прогресс</button>
     </div>
-
-    <div class="card">
-      <h3>О проекте</h3>
-      <p style="font-size:13px; color:var(--muted)">
-        Путь Художника — учебный трекер для тех, кто рисует «для себя». Без серверов, без регистрации. Работает на GitHub Pages.
-      </p>
-    </div>
   </div>
 </div>
 
@@ -95,7 +87,6 @@
   <a href="settings.html"><span class="icon icon-settings"></span>Ещё</a>
 </nav>
 
-<!-- Подключаем Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/data.js"></script>
 <script src="js/themes.js"></script>
@@ -182,7 +173,6 @@ function bindEvents(){
     
     try {
       const testClient = window.supabase.createClient(url, key);
-      // Пытаемся достучаться до таблицы profile
       const { error } = await testClient.from('profile').select('count', { count: 'exact', head: true }).limit(1);
       
       if (error && error.code !== 'PGRST116') {
