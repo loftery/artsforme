@@ -7,9 +7,11 @@
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+
 <div class="topbar">
   <div class="brand"><div class="brand-mark">A</div><span>Путь Художника</span></div>
 </div>
+
 <nav class="sidebar">
   <a href="index.html"><span class="icon icon-home"></span> Дашборд</a>
   <a href="learn.html"><span class="icon icon-book"></span> Обучение</a>
@@ -19,6 +21,7 @@
   <a href="ideas.html"><span class="icon icon-bulb"></span> Идеи</a>
   <a href="settings.html"><span class="icon icon-settings"></span> Настройки</a>
 </nav>
+
 <div class="main-wrap">
   <div class="content">
     <h1>Стили</h1>
@@ -26,6 +29,7 @@
     <div id="stylesWrap" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px;"></div>
   </div>
 </div>
+
 <nav class="bottom-nav">
   <a href="index.html"><span class="icon icon-home"></span>Главная</a>
   <a href="learn.html"><span class="icon icon-book"></span>Уроки</a>
@@ -33,6 +37,7 @@
   <a href="gallery.html"><span class="icon icon-image"></span>Галерея</a>
   <a href="settings.html"><span class="icon icon-settings"></span>Ещё</a>
 </nav>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/data.js"></script>
 <script src="js/themes.js"></script>
@@ -41,6 +46,7 @@
 function onReady(){
   const wrap = document.getElementById('stylesWrap');
   if(!wrap) return;
+  
   wrap.innerHTML = APP_DATA.STYLES.map(s=>`
     <div class="card" style="margin:0; padding:20px; background:var(--card); border:2px solid var(--line); border-radius:14px;">
       <h3 style="margin-top:0; margin-bottom:10px; font-size:17px; color:var(--accent);">${s.title}</h3>
@@ -54,6 +60,7 @@ function onReady(){
     </div>
   `).join('');
 }
+
 APP.boot();
 </script>
 </body>
