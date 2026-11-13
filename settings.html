@@ -32,16 +32,9 @@
     </div>
 
     <div class="card">
-      <h3>Синхронизация</h3>
-      <div class="field">
-        <label>Supabase URL</label>
-        <input type="text" id="sbUrl" placeholder="https://xxxx.supabase.co">
-      </div>
-      <div class="field">
-        <label>Supabase anon key</label>
-        <input type="text" id="sbKey" placeholder="eyJhbGci...">
-      </div>
-      <button class="btn btn-primary btn-block" id="sbSave">Подключить</button>
+      <h3>Сброс</h3>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:10px;">Удаляет весь прогресс и настройки. Рисунки останутся.</p>
+      <button class="btn btn-ghost btn-block" id="resetBtn" style="color:red; border-color:red;">Сбросить прогресс</button>
     </div>
   </div>
 </div>
@@ -56,58 +49,38 @@
 
 <script src="js/data.js"></script>
 <script src="js/themes.js"></script>
+<script src="js/app.js"></script>
 <script>
-// ============================================
-// ВШИТЫЙ ЛОКАЛЬНЫЙ КОД (чтобы не зависеть от app.js)
-// ============================================
-const store = {
-  get(key, def){ try{ return JSON.parse(localStorage.getItem('ap_'+key)) ?? def; }catch{ return def; } },
-  set(key, val){ localStorage.setItem('ap_'+key, JSON.stringify(val)); }
-};
+function onReady(){
+  renderThemes();
+  
+  document.getElementById('resetBtn').onclick = () => {
+    if(!confirm('Сбросить весь прогресс?')) return;
+    localStorage.removeItem('ap_progress');
+    localStorage.removeItem('ap_tasks');
+    localStorage.removeItem('ap_xp');
+    localStorage.removeItem('ap_streak');
+    location.reload();
+  };
+}
 
-function applyTheme(id) {
-  // Меняем тему
-  document.body.dataset.theme = id;
-  localStorage.setItem('artist_theme', id);
-  
-  // Перерисовываем кнопки
+function renderThemes(){
   const grid = document.getElementById('themeGrid');
-  const current = id;
+  const current = APP.state.theme;
   
-  grid.innerHTML = Object.entries(APP_THEMES.THEMES).map(([tId,t])=>`
-    <button class="btn ${tId===current?'btn-primary':'btn-ghost'}" onclick="applyTheme('${tId}')">${t.name}</button>
+  grid.innerHTML = Object.entries(APP_THEMES.THEMES).map(([id,t])=>`
+    <button class="btn ${id===current?'btn-primary':'btn-ghost'}" onclick="changeTheme('${id}')">${t.name}</button>
   `).join('');
 }
 
-// Инициализация при загрузке
-function init() {
-  // 1. Восстанавливаем тему
-  const savedTheme = localStorage.getItem('artist_theme') || 'default';
-  document.body.dataset.theme = savedTheme;
-  if (window.APP_THEMES) {
-    APP_THEMES.applyTheme(savedTheme);
-  }
-  applyTheme(savedTheme);
+window.changeTheme = function(id) {
+  APP.state.theme = id;
+  APP_THEMES.applyTheme(id);
+  localStorage.setItem('artist_theme', id);
+  renderThemes();
+};
 
-  // 2. Загружаем ключи Supabase
-  const cfg = store.get('supabase', null);
-  if(cfg) {
-    document.getElementById('sbUrl').value = cfg.url || '';
-    document.getElementById('sbKey').value = cfg.key || '';
-  }
-
-  // 3. Кнопка сохранения
-  document.getElementById('sbSave').addEventListener('click', ()=>{
-    const url = document.getElementById('sbUrl').value.trim();
-    const key = document.getElementById('sbKey').value.trim();
-    if(!url || !key) return alert('Заполни поля');
-    store.set('supabase', {url, key});
-    alert('Сохранено! Перезагрузи страницу.');
-  });
-}
-
-// Запускаем всё это сразу, как только страница загрузилась
-window.addEventListener('DOMContentLoaded', init);
+APP.boot();
 </script>
 </body>
 </html>
