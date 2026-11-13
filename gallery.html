@@ -26,7 +26,7 @@
 <div class="main-wrap">
   <div class="content">
     <h1>Галерея</h1>
-    <p class="sub">Твои рисунки. Каждый привязан к уроку и категории.</p>
+    <p class="sub">Твои рисунки.</p>
 
     <div class="task-filters" id="catTabs">
       <button class="filter-chip active" data-cat="all">Все</button>
@@ -38,7 +38,7 @@
     <div id="galleryWrap" class="gallery-grid"></div>
     <div id="emptyWrap" class="empty" style="display:none">
       <h3>Пока пусто</h3>
-      <p>Нажми «+ Добавить», чтобы загрузить первый рисунок</p>
+      <p>Нажми «+ Добавить»</p>
     </div>
   </div>
 </div>
@@ -55,18 +55,15 @@
 <div class="modal-bg" id="addModal">
   <div class="modal">
     <h2>Добавить рисунок</h2>
-
     <div class="field">
       <label>Файл</label>
       <input type="file" id="fileInput" accept="image/*">
     </div>
     <div id="preview" style="margin-bottom:14px"></div>
-
     <div class="field">
       <label>Название</label>
-      <input type="text" id="titleInput" placeholder="Например: Рыцарь в кубе">
+      <input type="text" id="titleInput" placeholder="Имя рисунка">
     </div>
-
     <div class="field">
       <label>Категория</label>
       <select id="catSelect">
@@ -75,19 +72,14 @@
         <option value="krita">Krita</option>
       </select>
     </div>
-
     <div class="field">
       <label>Урок (необязательно)</label>
-      <select id="lessonSelect">
-        <option value="">— Без привязки —</option>
-      </select>
+      <select id="lessonSelect"><option value="">— Без привязки —</option></select>
     </div>
-
     <div class="field">
       <label>Заметка</label>
-      <textarea id="notesInput" placeholder="Что получилось, что нет..."></textarea>
+      <textarea id="notesInput" placeholder="Что получилось..."></textarea>
     </div>
-
     <div style="display:flex; gap:8px">
       <button class="btn btn-ghost btn-block" id="cancelBtn">Отмена</button>
       <button class="btn btn-primary btn-block" id="saveBtn">Сохранить</button>
@@ -192,20 +184,19 @@ async function saveImage(){
   const compressed = await compressImage(pendingFile);
   const id = 'img_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
   
-  // Загружаем в Supabase Storage
+  // Грузим в облако
   const cloudUrl = await APP.uploadImageToCloud(id, compressed);
   
-  // Сохраняем локально (IndexedDB)
+  // Сохраняем локально
   await APP.dbPut({id, data: compressed});
   
-  // Сохраняем метаданные
   const meta = APP.store.get('meta', []);
-  meta.push({id, title, cat, lesson, notes, created: Date.now(), cloudUrl});
+  meta.push({id, title, cat, lesson, notes, created: Date.now(), cloudUrl: cloudUrl || null});
   APP.store.set('meta', meta);
 
   APP.addXP(15, 'рисунок загружен');
   
-  // Синхронизируем метаданные с облаком
+  // Синхронизируем
   if (window.APP.pushToCloud) APP.pushToCloud();
 
   btn.textContent = 'Сохранить';
@@ -259,11 +250,11 @@ async function renderGallery(){
     let imgSrc = '';
     const rec = await APP.dbGet(m.id);
     if (rec) {
-      imgSrc = rec.data; // Локальная картинка
+      imgSrc = rec.data; // Локальная
     } else if (m.cloudUrl) {
-      imgSrc = m.cloudUrl; // Картинка из облака
+      imgSrc = m.cloudUrl; // Из облака
     } else {
-      continue; // Картинки нет нигде
+      continue;
     }
 
     const lesson = m.lesson ? APP_DATA.PROGRAM.flatMap(l=>l.lessons).find(l=>l.id === m.lesson) : null;
