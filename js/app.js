@@ -81,7 +81,7 @@ async function pushToCloud() {
 async function pullFromCloud() {
   if (!supabaseClient) return;
   try {
-    const { data: prof } = await supabaseClient.from('profile').select('*').eq('user_id', currentUserId).single();
+    const { data: prof } = await supabaseClient.from('profile').select('*').eq('user_id', currentUserId).maybeSingle();
     if (prof) {
       state.xp = prof.xp || 0;
       state.streak = { count: prof.streak_count || 0, last: prof.streak_last };
