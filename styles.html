@@ -25,7 +25,7 @@
 <div class="main-wrap">
   <div class="content">
     <h1>Стили</h1>
-    <p class="sub">10 стилей. Что это, где встречается, что рисовать.</p>
+    <p class="sub">10 стилей. Что это и где встречается.</p>
     <div id="stylesWrap" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px;"></div>
   </div>
 </div>
@@ -45,22 +45,14 @@
 <script>
 function onReady(){
   const wrap = document.getElementById('stylesWrap');
-  if(!wrap) return;
-  
   wrap.innerHTML = APP_DATA.STYLES.map(s=>`
-    <div class="card" style="margin:0; padding:20px; background:var(--card); border:2px solid var(--line); border-radius:14px;">
-      <h3 style="margin-top:0; margin-bottom:10px; font-size:17px; color:var(--accent);">${s.title}</h3>
-      <p style="font-size:14px; margin:0 0 12px; line-height:1.5; color:var(--text);">${s.desc}</p>
-      <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;">
-        ${s.games.map(g=>`<span style="font-size:10px; font-weight:700; padding:3px 8px; border-radius:6px; background:rgba(200,85,61,.12); color:var(--accent);">${g}</span>`).join('')}
-      </div>
-      <p style="font-size:12px; color:var(--muted); margin:0; line-height:1.4;">
-        <strong>Совет:</strong> ${s.tips}
-      </p>
+    <div class="card">
+      <h3 style="color:var(--accent);">${s.title}</h3>
+      <p style="font-size:14px;">${s.desc}</p>
+      <span class="tag">${s.games}</span>
     </div>
   `).join('');
 }
-
 APP.boot();
 </script>
 </body>
