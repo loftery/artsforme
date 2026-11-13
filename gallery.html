@@ -51,7 +51,6 @@
   <a href="settings.html"><span class="icon icon-settings"></span>Ещё</a>
 </nav>
 
-<!-- Модалка добавления -->
 <div class="modal-bg" id="addModal">
   <div class="modal">
     <h2>Добавить рисунок</h2>
@@ -73,10 +72,6 @@
       </select>
     </div>
     <div class="field">
-      <label>Урок (необязательно)</label>
-      <select id="lessonSelect"><option value="">— Без привязки —</option></select>
-    </div>
-    <div class="field">
       <label>Заметка</label>
       <textarea id="notesInput" placeholder="Что получилось..."></textarea>
     </div>
@@ -87,7 +82,6 @@
   </div>
 </div>
 
-<!-- Просмотр -->
 <div class="modal-bg" id="viewModal">
   <div class="modal" style="max-width:700px">
     <h2 id="viewTitle"></h2>
@@ -106,25 +100,14 @@ let currentCat = 'all';
 let pendingFile = null;
 let pendingDataUrl = null;
 
+// Функция, которая вызовется после загрузки APP
 function onReady(){
-  initLessonSelect();
-  renderGallery();
   bindEvents();
-}
-
-function initLessonSelect(){
-  const sel = document.getElementById('lessonSelect');
-  sel.innerHTML = '<option value="">— Без привязки —</option>' +
-    APP_DATA.PROGRAM.map(l=>
-      `<optgroup label="Уровень ${l.id}: ${l.title}">${
-        l.lessons.map(ls=>`<option value="${ls.id}">${ls.title}</option>`).join('')
-      }</optgroup>`
-    ).join('');
+  renderGallery();
 }
 
 function bindEvents(){
   document.getElementById('addBtn').addEventListener('click', ()=>{
-    resetForm();
     document.getElementById('addModal').classList.add('show');
   });
   document.getElementById('cancelBtn').addEventListener('click', ()=>{
@@ -136,13 +119,11 @@ function bindEvents(){
   document.getElementById('fileInput').addEventListener('change', e=>{
     const f = e.target.files[0];
     if(!f) return;
-    if(!f.type.startsWith('image/')){ APP.showToast('Это не картинка'); return; }
     pendingFile = f;
     const r = new FileReader();
     r.onload = ev=>{
       pendingDataUrl = ev.target.result;
-      document.getElementById('preview').innerHTML =
-        `<img src="${pendingDataUrl}" style="max-width:100%; max-height:160px; border-radius:8px">`;
+      document.getElementById('preview').innerHTML = `<img src="${pendingDataUrl}" style="max-width:100%; max-height:160px; border-radius:8px">`;
     };
     r.readAsDataURL(f);
   });
@@ -158,27 +139,13 @@ function bindEvents(){
   });
 }
 
-function resetForm(){
-  pendingFile = null;
-  pendingDataUrl = null;
-  document.getElementById('fileInput').value = '';
-  document.getElementById('preview').innerHTML = '';
-  document.getElementById('titleInput').value = '';
-  document.getElementById('notesInput').value = '';
-  document.getElementById('catSelect').value = 'hand';
-  document.getElementById('lessonSelect').value = '';
-}
-
 async function saveImage(){
   if(!pendingFile){ APP.showToast('Выбери файл'); return; }
-  
   const btn = document.getElementById('saveBtn');
-  btn.textContent = 'Загрузка...';
-  btn.disabled = true;
+  btn.textContent = 'Загрузка...'; btn.disabled = true;
 
   const title = document.getElementById('titleInput').value.trim();
   const cat = document.getElementById('catSelect').value;
-  const lesson = document.getElementById('lessonSelect').value;
   const notes = document.getElementById('notesInput').value.trim();
 
   const compressed = await compressImage(pendingFile);
@@ -188,15 +155,13 @@ async function saveImage(){
   await APP.dbPut({id, data: compressed});
   
   const meta = APP.store.get('meta', []);
-  meta.push({id, title, cat, lesson, notes, created: Date.now(), cloudUrl: cloudUrl || null});
+  meta.push({id, title, cat, notes, created: Date.now(), cloudUrl: cloudUrl || null});
   APP.store.set('meta', meta);
 
   APP.addXP(15, 'рисунок загружен');
-  
   if (window.APP.pushToCloud) APP.pushToCloud();
 
-  btn.textContent = 'Сохранить';
-  btn.disabled = false;
+  btn.textContent = 'Сохранить'; btn.disabled = false;
   document.getElementById('addModal').classList.remove('show');
   renderGallery();
 }
@@ -210,18 +175,15 @@ function compressImage(file, maxSize=1400){
         let {width, height} = img;
         if(width > maxSize || height > maxSize){
           const ratio = Math.min(maxSize/width, maxSize/height);
-          width = Math.round(width*ratio);
-          height = Math.round(height*ratio);
+          width = Math.round(width*ratio); height = Math.round(height*ratio);
         }
         const c = document.createElement('canvas');
         c.width = width; c.height = height;
         c.getContext('2d').drawImage(img, 0, 0, width, height);
         res(c.toDataURL('image/jpeg', 0.85));
       };
-      img.onerror = rej;
       img.src = e.target.result;
     };
-    r.onerror = rej;
     r.readAsDataURL(file);
   });
 }
@@ -236,24 +198,16 @@ async function renderGallery(){
   const empty = document.getElementById('emptyWrap');
   wrap.innerHTML = '';
 
-  if(!list.length){
-    empty.style.display = 'block';
-    return;
-  }
+  if(!list.length){ empty.style.display = 'block'; return; }
   empty.style.display = 'none';
 
   for(const m of list){
     let imgSrc = '';
     const rec = await APP.dbGet(m.id);
-    if (rec) {
-      imgSrc = rec.data;
-    } else if (m.cloudUrl) {
-      imgSrc = m.cloudUrl;
-    } else {
-      continue;
-    }
+    if (rec) imgSrc = rec.data;
+    else if (m.cloudUrl) imgSrc = m.cloudUrl;
+    else continue;
 
-    const lesson = m.lesson ? APP_DATA.PROGRAM.flatMap(l=>l.lessons).find(l=>l.id === m.lesson) : null;
     const card = document.createElement('div');
     card.className = 'gallery-card';
     card.innerHTML = `
@@ -262,7 +216,6 @@ async function renderGallery(){
       <div class="meta">
         <span class="cat-tag cat-${m.cat}">${APP.CAT_LABEL[m.cat]}</span>
         <div class="name">${m.title || 'Без названия'}</div>
-        <div style="font-size:10px; color:var(--muted)">${lesson ? lesson.title : APP.formatDate(m.created)}</div>
       </div>
     `;
     card.addEventListener('click', e=>{
@@ -271,10 +224,9 @@ async function renderGallery(){
     });
     card.querySelector('.del').addEventListener('click', async e=>{
       e.stopPropagation();
-      if(!confirm('Удалить рисунок?')) return;
+      if(!confirm('Удалить?')) return;
       await APP.dbDel(m.id);
-      const updated = APP.store.get('meta', []).filter(x=>x.id !== m.id);
-      APP.store.set('meta', updated);
+      APP.store.set('meta', APP.store.get('meta', []).filter(x=>x.id !== m.id));
       if (window.APP.pushToCloud) APP.pushToCloud();
       renderGallery();
     });
@@ -285,11 +237,7 @@ async function renderGallery(){
 function openView(meta, dataUrl){
   document.getElementById('viewTitle').textContent = meta.title || 'Без названия';
   document.getElementById('viewImg').src = dataUrl;
-  const lesson = meta.lesson ? APP_DATA.PROGRAM.flatMap(l=>l.lessons).find(l=>l.id === meta.lesson) : null;
-  document.getElementById('viewInfo').innerHTML =
-    `${APP.CAT_LABEL[meta.cat]} · ${APP.formatDate(meta.created)}` +
-    (lesson ? `<br>Урок: ${lesson.title}` : '') +
-    (meta.notes ? `<br><br>${meta.notes}` : '');
+  document.getElementById('viewInfo').innerHTML = `${APP.CAT_LABEL[meta.cat]} · ${APP.formatDate(meta.created)}<br><br>${meta.notes || ''}`;
   document.getElementById('viewModal').classList.add('show');
 }
 
