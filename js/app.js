@@ -24,27 +24,6 @@ const store = {
   set(key, val){ localStorage.setItem('ap_'+key, JSON.stringify(val)); }
 };
 
-// Глобальная переменная для Supabase
-let supabaseClient = null;
-const currentUserId = 'local_user'; 
-
-async function initSupabase() {
-  const cfg = store.get('supabase', null);
-  if (cfg && cfg.url && cfg.key && window.supabase) {
-    try {
-      supabaseClient = window.supabase.createClient(cfg.url, cfg.key);
-      const { error } = await supabaseClient.from('profile').select('count', { count: 'exact', head: true }).limit(1);
-      if (error && error.code !== 'PGRST116') {
-         console.error('Ошибка подключения к Supabase:', error);
-      } else {
-         await pullFromCloud();
-      }
-    } catch (e) {
-      console.error('Ошибка инициализации Supabase', e);
-    }
-  }
-}
-
 const state = {
   progress: store.get('progress', {}),
   tasks: store.get('tasks', {}),
@@ -53,90 +32,10 @@ const state = {
   theme: localStorage.getItem('artist_theme') || 'default'
 };
 
-function saveProgress(){ store.set('progress', state.progress); pushToCloud(); }
-function saveTasks(){ store.set('tasks', state.tasks); pushToCloud(); }
-function saveStreak(){ store.set('streak', state.streak); pushToCloud(); }
-function saveXP(){ store.set('xp', state.xp); pushToCloud(); }
-
-async function pushToCloud() {
-  if (!supabaseClient) return;
-  try {
-    await supabaseClient.from('profile').upsert({
-      user_id: currentUserId, xp: state.xp,
-      streak_count: state.streak.count, streak_last: state.streak.last
-    }, { onConflict: 'user_id' });
-
-    const progArray = Object.keys(state.progress).map(id => ({ user_id: currentUserId, lesson_id: id, done: true }));
-    if (progArray.length > 0) await supabaseClient.from('progress').upsert(progArray, { onConflict: 'user_id,lesson_id' });
-
-    const tasksArray = Object.keys(state.tasks).map(id => ({ user_id: currentUserId, task_id: id, status: state.tasks[id] }));
-    if (tasksArray.length > 0) await supabaseClient.from('tasks').upsert(tasksArray, { onConflict: 'user_id,task_id' });
-
-    const meta = store.get('meta', []);
-    const galleryArray = meta.map(m => ({ id: m.id, user_id: currentUserId, title: m.title, cat: m.cat, lesson: m.lesson, notes: m.notes, created: m.created }));
-    if (galleryArray.length > 0) await supabaseClient.from('gallery_meta').upsert(galleryArray, { onConflict: 'id' });
-  } catch (e) { console.warn('Не удалось отправить', e); }
-}
-
-async function pullFromCloud() {
-  if (!supabaseClient) return;
-  try {
-    // 1. Забираем прогресс уроков
-    const { data: progs } = await supabaseClient.from('progress').select('*').eq('user_id', currentUserId);
-    if (progs) {
-      state.progress = {};
-      progs.forEach(p => { if (p.done) state.progress[p.lesson_id] = true; });
-    }
-
-    // 2. Забираем задачи
-    const { data: tsks } = await supabaseClient.from('tasks').select('*').eq('user_id', currentUserId);
-    if (tsks) {
-      state.tasks = {};
-      tsks.forEach(t => { state.tasks[t.task_id] = t.status; });
-    }
-
-    // 3. Забираем галерею
-    const { data: gal } = await supabaseClient.from('gallery_meta').select('*').eq('user_id', currentUserId);
-    if (gal) {
-      const localMeta = store.get('meta', []);
-      const cloudMeta = gal.map(g => ({ id: g.id, title: g.title, cat: g.cat, lesson: g.lesson, notes: g.notes, created: g.created }));
-      const merged = [...cloudMeta];
-      localMeta.forEach(lm => { if (!merged.find(cm => cm.id === lm.id)) merged.push(lm); });
-      store.set('meta', merged);
-    }
-
-    // 4. Забираем профиль (XP), но без вызова .single()
-    const { data: profs } = await supabaseClient.from('profile').select('*').eq('user_id', currentUserId);
-    if (profs && profs.length > 0) {
-      state.xp = profs[0].xp || 0;
-      state.streak = { count: profs[0].streak_count || 0, last: profs[0].streak_last };
-    }
-
-    // Сохраняем всё локально
-    store.set('progress', state.progress);
-    store.set('tasks', state.tasks);
-    store.set('xp', state.xp);
-    store.set('streak', state.streak);
-
-    // Перерисовываем страницу, если мы на ней
-    if (typeof onReady === 'function') onReady();
-
-  } catch (e) {
-    console.warn('Не удалось загрузить данные', e);
-  }
-}
-
-async function uploadImageToCloud(fileId, dataUrl) {
-  if (!supabaseClient) return null; 
-  try {
-    const res = await fetch(dataUrl);
-    const blob = await res.blob();
-    const { error } = await supabaseClient.storage.from('artworks').upload(`${fileId}.jpg`, blob, { contentType: 'image/jpeg', upsert: true });
-    if (error) return null;
-    const { data: publicUrlData } = supabaseClient.storage.from('artworks').getPublicUrl(`${fileId}.jpg`);
-    return publicUrlData.publicUrl;
-  } catch (e) { return null; }
-}
+function saveProgress(){ store.set('progress', state.progress); }
+function saveTasks(){ store.set('tasks', state.tasks); }
+function saveStreak(){ store.set('streak', state.streak); }
+function saveXP(){ store.set('xp', state.xp); }
 
 function addXP(amount, reason){
   state.xp += amount;
@@ -205,19 +104,12 @@ function initTheme(){
 async function boot(){
   await initDB();
   initTheme();
-  
-  // ВАЖНО: Вызываем onReady, чтобы оживить кнопки на странице
-  if(typeof onReady === 'function') {
-    onReady();
-  }
-  
-  await initSupabase();
+  if(typeof onReady === 'function') onReady();
 }
 
 window.APP = {
   state, boot, addXP, toggleLesson, toggleTask,
   isLessonDone, isTaskDone, calcLevel,
   dbPut, dbGet, dbDel, dbAll, store,
-  showToast, formatDate, CAT_LABEL, saveProgress, saveTasks,
-  pushToCloud, uploadImageToCloud
+  showToast, formatDate, CAT_LABEL, saveProgress, saveTasks
 };
