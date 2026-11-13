@@ -1,5 +1,5 @@
 /* ============================================
-   ТЕМЫ И ПЕРЕМЕННЫЕ
+   ТЕМЫ И ПЕРЕМЕННЫЕ (работают везде)
    ============================================ */
 :root{
   --bg:#faf8f4; --bg2:#efe9df; --card:#ffffff; --card2:#fbf8f3;
@@ -48,46 +48,23 @@ button{font-family:inherit; cursor:pointer; border:none}
 .icon-settings{mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19.4 13a7.6 7.6 0 000-2l2.1-1.6-2-3.5-2.5 1a7.6 7.6 0 00-1.7-1L15 3h-4l-.3 2.9a7.6 7.6 0 00-1.7 1l-2.5-1-2 3.5L4.6 11a7.6 7.6 0 000 2l-2.1 1.6 2 3.5 2.5-1a7.6 7.6 0 001.7 1L9 21h4l.3-2.9a7.6 7.6 0 001.7-1l2.5 1 2-3.5L19.4 13zM13 15.5a3.5 3.5 0 110-7 3.5 3.5 0 010 7z'/%3E%3C/svg%3E");}
 
 /* ============================================
-   СТРУКТУРА И НАВИГАЦИЯ (ИСПРАВЛЕНО)
+   НАВИГАЦИЯ
    ============================================ */
-.topbar{
-  position:sticky; top:0; z-index:50;
-  background:var(--card); border-bottom:2px solid var(--line);
-  padding:12px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px;
-}
+.topbar{position:sticky; top:0; z-index:50; background:var(--card); border-bottom:2px solid var(--line); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px;}
 .brand{display:flex; align-items:center; gap:10px; font-weight:800; font-size:17px; color:var(--text)}
-.brand-mark{
-  width:34px; height:34px; border-radius:9px;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; font-weight:800;
-}
+.brand-mark{width:34px; height:34px; border-radius:9px; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; font-weight:800;}
 
-.sidebar{
-  position:fixed; left:0; top:60px; bottom:0; width:220px;
-  background:var(--card); border-right:2px solid var(--line);
-  padding:16px 12px; overflow-y:auto; z-index:40; display:none;
-}
-.sidebar a{
-  display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px;
-  color:var(--muted); font-weight:600; font-size:14px; margin-bottom:4px; transition:all .2s;
-}
+.sidebar{position:fixed; left:0; top:60px; bottom:0; width:220px; background:var(--card); border-right:2px solid var(--line); padding:16px 12px; overflow-y:auto; z-index:40; display:none;}
+.sidebar a{display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:10px; color:var(--muted); font-weight:600; font-size:14px; margin-bottom:4px; transition:all .2s;}
 .sidebar a:hover, .sidebar a.active{background:var(--accent); color:#fff}
-
 .main-wrap{margin-left:0}
 @media(min-width:900px){
   .sidebar{display:block}
   .main-wrap{margin-left:220px}
 }
 
-.bottom-nav{
-  position:fixed; bottom:0; left:0; right:0; z-index:50;
-  background:var(--card); border-top:2px solid var(--line);
-  display:flex; padding:6px 4px; box-shadow:0 -4px 16px rgba(0,0,0,.08);
-}
-.bottom-nav a{
-  flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 2px;
-  color:var(--muted); font-size:9px; font-weight:600; border-radius:8px; transition:all .2s;
-}
+.bottom-nav{position:fixed; bottom:0; left:0; right:0; z-index:50; background:var(--card); border-top:2px solid var(--line); display:flex; padding:6px 4px; box-shadow:0 -4px 16px rgba(0,0,0,.08);}
+.bottom-nav a{flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 2px; color:var(--muted); font-size:9px; font-weight:600; border-radius:8px; transition:all .2s;}
 .bottom-nav a.active{color:var(--accent)}
 .bottom-nav .icon{width:20px; height:20px}
 @media(min-width:900px){
@@ -102,13 +79,10 @@ button{font-family:inherit; cursor:pointer; border:none}
 .content h1{font-size:24px; margin-bottom:4px}
 .content .sub{color:var(--muted); font-size:14px; margin-bottom:20px}
 
-.card{
-  background:var(--card); border:2px solid var(--line);
-  border-radius:14px; padding:18px; margin-bottom:14px; transition:border-color .2s;
-}
+.card{background:var(--card); border:2px solid var(--line); border-radius:14px; padding:18px; margin-bottom:14px; transition:border-color .2s;}
 .card:hover{border-color:var(--accent)}
 
-/* Дашборд и прогресс */
+/* СТАТИСТИКА */
 .stats-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:16px;}
 .stat-box{background:var(--card); border:2px solid var(--line); border-radius:14px; padding:16px; text-align:center;}
 .stat-box .val{font-size:26px; font-weight:800; color:var(--accent)}
@@ -116,14 +90,14 @@ button{font-family:inherit; cursor:pointer; border:none}
 .xp-bar{background:var(--line); height:14px; border-radius:8px; overflow:hidden; margin:8px 0;}
 .xp-fill{height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:8px; transition:width .6s ease;}
 
-/* Кнопки */
+/* КНОПКИ */
 .btn{display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:10px 18px; border-radius:10px; border:none; font-weight:700; font-size:14px; transition:all .2s;}
 .btn-primary{background:var(--accent); color:#fff}
 .btn-ghost{background:transparent; color:var(--text); border:2px solid var(--line)}
 .btn-ghost:hover{border-color:var(--accent); color:var(--accent)}
 .btn-block{width:100%; justify-content:center}
 
-/* Уровни и уроки */
+/* УРОВНИ И УРОКИ */
 .level-card{background:var(--card); border:2px solid var(--line); border-radius:14px; margin-bottom:12px; overflow:hidden;}
 .level-head{padding:16px 18px; display:flex; align-items:center; gap:14px; cursor:pointer; transition:background .2s;}
 .level-head:hover{background:var(--bg)}
@@ -143,7 +117,7 @@ button{font-family:inherit; cursor:pointer; border:none}
 .lesson-body .games{font-size:11px; color:var(--accent); font-weight:700; margin-bottom:4px}
 .lesson-body p{margin:0; font-size:12px; color:var(--muted); line-height:1.5}
 
-/* Задачи */
+/* ЗАДАЧИ */
 .task-filters{display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap}
 .filter-chip{padding:7px 14px; border-radius:20px; border:2px solid var(--line); background:var(--card); color:var(--text); font-size:12px; font-weight:700; transition:all .2s;}
 .filter-chip:hover{border-color:var(--accent)}
@@ -162,7 +136,7 @@ button{font-family:inherit; cursor:pointer; border:none}
 .tag.diff-high{background:rgba(200,50,50,.15); color:#c82a2a}
 .task-body p{margin:0; font-size:12px; color:var(--muted); line-height:1.5}
 
-/* Галерея */
+/* ГАЛЕРЕЯ */
 .gallery-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px;}
 .gallery-card{background:var(--card); border:2px solid var(--line); border-radius:12px; overflow:hidden; cursor:pointer; transition:all .2s; position:relative;}
 .gallery-card:hover{transform:translateY(-3px); border-color:var(--accent)}
@@ -174,7 +148,7 @@ button{font-family:inherit; cursor:pointer; border:none}
 .gallery-card .del{position:absolute; top:6px; right:6px; width:26px; height:26px; border-radius:50%; background:rgba(0,0,0,.6); color:#fff; font-size:12px; opacity:0; transition:opacity .2s; display:flex; align-items:center; justify-content:center;}
 .gallery-card:hover .del{opacity:1}
 
-/* Формы и модалки */
+/* ФОРМЫ И МОДАЛКИ */
 .field{margin-bottom:14px}
 .field label{display:block; font-size:12px; color:var(--muted); margin-bottom:5px; font-weight:700}
 .field input, .field select, .field textarea{width:100%; padding:10px 12px; background:var(--bg); border:2px solid var(--line); border-radius:10px; color:var(--text); font-size:14px; font-family:inherit; outline:none; transition:border-color .2s;}
@@ -185,7 +159,7 @@ button{font-family:inherit; cursor:pointer; border:none}
 .modal{background:var(--card); border-radius:16px; padding:22px; max-width:480px; width:100%; max-height:90vh; overflow-y:auto;}
 .modal h2{font-size:19px; margin-bottom:16px}
 
-/* Уведомления */
+/* УВЕДОМЛЕНИЯ */
 .toast{position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--accent); color:#fff; padding:11px 22px; border-radius:10px; font-weight:700; font-size:13px; opacity:0; transition:all .3s; z-index:300; pointer-events:none; white-space:nowrap; box-shadow:0 6px 20px rgba(0,0,0,.3);}
 .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
 .empty{text-align:center; padding:50px 20px; color:var(--muted);}
