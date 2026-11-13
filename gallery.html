@@ -184,10 +184,7 @@ async function saveImage(){
   const compressed = await compressImage(pendingFile);
   const id = 'img_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
   
-  // Грузим в облако
   const cloudUrl = await APP.uploadImageToCloud(id, compressed);
-  
-  // Сохраняем локально
   await APP.dbPut({id, data: compressed});
   
   const meta = APP.store.get('meta', []);
@@ -196,7 +193,6 @@ async function saveImage(){
 
   APP.addXP(15, 'рисунок загружен');
   
-  // Синхронизируем
   if (window.APP.pushToCloud) APP.pushToCloud();
 
   btn.textContent = 'Сохранить';
@@ -250,9 +246,9 @@ async function renderGallery(){
     let imgSrc = '';
     const rec = await APP.dbGet(m.id);
     if (rec) {
-      imgSrc = rec.data; // Локальная
+      imgSrc = rec.data;
     } else if (m.cloudUrl) {
-      imgSrc = m.cloudUrl; // Из облака
+      imgSrc = m.cloudUrl;
     } else {
       continue;
     }
