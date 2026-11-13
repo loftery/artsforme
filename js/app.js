@@ -81,17 +81,21 @@ async function pushToCloud() {
 async function pullFromCloud() {
   if (!supabaseClient) return;
   try {
-    const { data: prof } = await supabaseClient.from('profile').select('*').eq('user_id', currentUserId).maybeSingle();
-    if (prof) {
-      state.xp = prof.xp || 0;
-      state.streak = { count: prof.streak_count || 0, last: prof.streak_last };
-    }
+    // 1. Забираем прогресс уроков
     const { data: progs } = await supabaseClient.from('progress').select('*').eq('user_id', currentUserId);
-    if (progs) { state.progress = {}; progs.forEach(p => { if (p.done) state.progress[p.lesson_id] = true; }); }
+    if (progs) {
+      state.progress = {};
+      progs.forEach(p => { if (p.done) state.progress[p.lesson_id] = true; });
+    }
 
+    // 2. Забираем задачи
     const { data: tsks } = await supabaseClient.from('tasks').select('*').eq('user_id', currentUserId);
-    if (tsks) { state.tasks = {}; tsks.forEach(t => { state.tasks[t.task_id] = t.status; }); }
+    if (tsks) {
+      state.tasks = {};
+      tsks.forEach(t => { state.tasks[t.task_id] = t.status; });
+    }
 
+    // 3. Забираем галерею
     const { data: gal } = await supabaseClient.from('gallery_meta').select('*').eq('user_id', currentUserId);
     if (gal) {
       const localMeta = store.get('meta', []);
@@ -100,11 +104,26 @@ async function pullFromCloud() {
       localMeta.forEach(lm => { if (!merged.find(cm => cm.id === lm.id)) merged.push(lm); });
       store.set('meta', merged);
     }
+
+    // 4. Забираем профиль (XP), но без вызова .single()
+    const { data: profs } = await supabaseClient.from('profile').select('*').eq('user_id', currentUserId);
+    if (profs && profs.length > 0) {
+      state.xp = profs[0].xp || 0;
+      state.streak = { count: profs[0].streak_count || 0, last: profs[0].streak_last };
+    }
+
+    // Сохраняем всё локально
     store.set('progress', state.progress);
     store.set('tasks', state.tasks);
     store.set('xp', state.xp);
     store.set('streak', state.streak);
-  } catch (e) { console.warn('Не удалось загрузить', e); }
+
+    // Перерисовываем страницу, если мы на ней
+    if (typeof onReady === 'function') onReady();
+
+  } catch (e) {
+    console.warn('Не удалось загрузить данные', e);
+  }
 }
 
 async function uploadImageToCloud(fileId, dataUrl) {
