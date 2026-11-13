@@ -38,12 +38,10 @@ async function initSupabase() {
   if (cfg && cfg.url && cfg.key && window.supabase) {
     try {
       supabase = window.supabase.createClient(cfg.url, cfg.key);
-      
       const { error } = await supabase.from('profile').select('count', { count: 'exact', head: true }).limit(1);
       if (error && error.code !== 'PGRST116') {
          console.error('Ошибка подключения к Supabase:', error);
       } else {
-         console.log('Supabase успешно подключен');
          await pullFromCloud();
       }
     } catch (e) {
@@ -75,36 +73,27 @@ async function pushToCloud() {
   if (!supabase) return;
   try {
     await supabase.from('profile').upsert({
-      user_id: currentUserId,
-      xp: state.xp,
-      streak_count: state.streak.count,
-      streak_last: state.streak.last,
-      updated_at: new Date().toISOString()
+      user_id: currentUserId, xp: state.xp,
+      streak_count: state.streak.count, streak_last: state.streak.last
     }, { onConflict: 'user_id' });
 
     const progArray = Object.keys(state.progress).map(id => ({
       user_id: currentUserId, lesson_id: id, done: true
     }));
-    if (progArray.length > 0) {
-      await supabase.from('progress').upsert(progArray, { onConflict: 'user_id,lesson_id' });
-    }
+    if (progArray.length > 0) await supabase.from('progress').upsert(progArray, { onConflict: 'user_id,lesson_id' });
 
     const tasksArray = Object.keys(state.tasks).map(id => ({
       user_id: currentUserId, task_id: id, status: state.tasks[id]
     }));
-    if (tasksArray.length > 0) {
-      await supabase.from('tasks').upsert(tasksArray, { onConflict: 'user_id,task_id' });
-    }
+    if (tasksArray.length > 0) await supabase.from('tasks').upsert(tasksArray, { onConflict: 'user_id,task_id' });
 
     const meta = store.get('meta', []);
     const galleryArray = meta.map(m => ({
       id: m.id, user_id: currentUserId, title: m.title, cat: m.cat, lesson: m.lesson, notes: m.notes, created: m.created
     }));
-    if (galleryArray.length > 0) {
-      await supabase.from('gallery_meta').upsert(galleryArray, { onConflict: 'id' });
-    }
+    if (galleryArray.length > 0) await supabase.from('gallery_meta').upsert(galleryArray, { onConflict: 'id' });
   } catch (e) {
-    console.warn('Не удалось отправить данные в облако', e);
+    console.warn('Не удалось отправить данные', e);
   }
 }
 
@@ -116,40 +105,26 @@ async function pullFromCloud() {
       state.xp = prof.xp || 0;
       state.streak = { count: prof.streak_count || 0, last: prof.streak_last };
     }
-
     const { data: progs } = await supabase.from('progress').select('*').eq('user_id', currentUserId);
-    if (progs) {
-      state.progress = {};
-      progs.forEach(p => { if (p.done) state.progress[p.lesson_id] = true; });
-    }
+    if (progs) { state.progress = {}; progs.forEach(p => { if (p.done) state.progress[p.lesson_id] = true; }); }
 
     const { data: tsks } = await supabase.from('tasks').select('*').eq('user_id', currentUserId);
-    if (tsks) {
-      state.tasks = {};
-      tsks.forEach(t => { state.tasks[t.task_id] = t.status; });
-    }
+    if (tsks) { state.tasks = {}; tsks.forEach(t => { state.tasks[t.task_id] = t.status; }); }
 
     const { data: gal } = await supabase.from('gallery_meta').select('*').eq('user_id', currentUserId);
     if (gal) {
       const localMeta = store.get('meta', []);
-      const cloudMeta = gal.map(g => ({
-        id: g.id, title: g.title, cat: g.cat, lesson: g.lesson, notes: g.notes, created: g.created
-      }));
+      const cloudMeta = gal.map(g => ({ id: g.id, title: g.title, cat: g.cat, lesson: g.lesson, notes: g.notes, created: g.created }));
       const merged = [...cloudMeta];
-      localMeta.forEach(lm => {
-        if (!merged.find(cm => cm.id === lm.id)) merged.push(lm);
-      });
+      localMeta.forEach(lm => { if (!merged.find(cm => cm.id === lm.id)) merged.push(lm); });
       store.set('meta', merged);
     }
-
     store.set('progress', state.progress);
     store.set('tasks', state.tasks);
     store.set('xp', state.xp);
     store.set('streak', state.streak);
-    
-    if (typeof onReady === 'function') onReady();
   } catch (e) {
-    console.warn('Не удалось загрузить данные из облака', e);
+    console.warn('Не удалось загрузить данные', e);
   }
 }
 
@@ -158,23 +133,11 @@ async function uploadImageToCloud(fileId, dataUrl) {
   try {
     const res = await fetch(dataUrl);
     const blob = await res.blob();
-    const fileName = `${fileId}.jpg`;
-
-    const { error } = await supabase.storage
-      .from('artworks')
-      .upload(fileName, blob, { contentType: 'image/jpeg', upsert: true });
-
-    if (error) {
-      console.error('Ошибка загрузки в Storage:', error);
-      return null;
-    }
-
-    const { data: publicUrlData } = supabase.storage.from('artworks').getPublicUrl(fileName);
+    const { error } = await supabase.storage.from('artworks').upload(`${fileId}.jpg`, blob, { contentType: 'image/jpeg', upsert: true });
+    if (error) return null;
+    const { data: publicUrlData } = supabase.storage.from('artworks').getPublicUrl(`${fileId}.jpg`);
     return publicUrlData.publicUrl;
-  } catch (e) {
-    console.error('Критическая ошибка при загрузке:', e);
-    return null;
-  }
+  } catch (e) { return null; }
 }
 
 // ============================================
@@ -253,11 +216,20 @@ function initTheme(){
   if(window.APP_THEMES) window.APP_THEMES.applyTheme(state.theme);
 }
 
+// ============================================
+// СТАРТ
+// ============================================
 async function boot(){
   await initDB();
   initTheme();
-  if(typeof onReady === 'function') onReady();
-  await initSupabase(); // Запускаем синхронизацию после отрисовки
+  
+  // ВОТ ОНА, РОДНАЯ! Вызываем инициализацию страницы.
+  if(typeof onReady === 'function') {
+    onReady();
+  }
+  
+  // Потом запускаем облако
+  await initSupabase();
 }
 
 window.APP = {
