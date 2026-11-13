@@ -25,17 +25,14 @@
 <div class="main-wrap">
   <div class="content">
     <h1>Настройки</h1>
-    <p class="sub">Тема, синхронизация, данные</p>
-
+    
     <div class="card">
-      <h3>Тема и шрифт</h3>
-      <p style="font-size:13px; color:var(--muted); margin-bottom:12px">Каждая тема меняет палитру и шрифт под игру.</p>
-      <div id="themeGrid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px;"></div>
+      <h3>Тема</h3>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px; margin-top:12px;" id="themeGrid"></div>
     </div>
 
     <div class="card">
-      <h3>Синхронизация (Supabase)</h3>
-      <p style="font-size:13px; color:var(--muted); margin-bottom:12px">По умолчанию данные хранятся только в этом браузере.</p>
+      <h3>Синхронизация</h3>
       <div class="field">
         <label>Supabase URL</label>
         <input type="text" id="sbUrl" placeholder="https://xxxx.supabase.co">
@@ -44,25 +41,7 @@
         <label>Supabase anon key</label>
         <input type="text" id="sbKey" placeholder="eyJhbGci...">
       </div>
-      <div style="display:flex; gap:8px">
-        <button class="btn btn-ghost btn-block" id="sbClear">Отключить</button>
-        <button class="btn btn-primary btn-block" id="sbSave">Подключить</button>
-      </div>
-      <p style="font-size:12px; color:var(--muted); margin-top:10px">Статус: <span id="sbStatus" style="font-weight:700; color:var(--accent)">Не подключено</span></p>
-    </div>
-
-    <div class="card">
-      <h3>Экспорт и импорт</h3>
-      <div style="display:flex; gap:8px">
-        <button class="btn btn-ghost btn-block" id="exportBtn">Экспорт</button>
-        <button class="btn btn-ghost btn-block" id="importBtn">Импорт</button>
-      </div>
-      <input type="file" id="importFile" accept=".json" style="display:none">
-    </div>
-
-    <div class="card">
-      <h3>Сброс</h3>
-      <button class="btn btn-ghost btn-block" id="resetBtn" style="color:#c82a2a">Сбросить прогресс</button>
+      <button class="btn btn-primary btn-block" id="sbSave">Подключить</button>
     </div>
   </div>
 </div>
@@ -81,157 +60,39 @@
 <script src="js/app.js"></script>
 <script>
 function onReady(){
-  renderThemes();
-  loadSupabase();
-  bindEvents();
-}
-
-function renderThemes(){
-  const wrap = document.getElementById('themeGrid');
-  const cur = APP.state.theme;
-  wrap.innerHTML = Object.entries(APP_THEMES.THEMES).map(([id,t])=>`
-    <button class="theme-card ${id===cur?'active':''}" data-theme="${id}"
-      style="padding:12px; border-radius:10px; border:2px solid ${id===cur?'var(--accent)':'var(--line)'};
-             background:${t.vars['--card']}; color:${t.vars['--text']}; text-align:left; cursor:pointer; transition:all .2s;">
-      <div style="font-weight:800; font-size:13px;">${t.name}</div>
-      <div style="display:flex; gap:4px; margin-top:8px;">
-        <span style="width:16px;height:16px;border-radius:4px;background:${t.vars['--accent']}"></span>
-        <span style="width:16px;height:16px;border-radius:4px;background:${t.vars['--accent2']}"></span>
-        <span style="width:16px;height:16px;border-radius:4px;background:${t.vars['--bg']};border:1px solid ${t.vars['--line']}"></span>
-      </div>
-    </button>
+  const grid = document.getElementById('themeGrid');
+  const current = APP.state.theme;
+  
+  // Кнопки тем
+  grid.innerHTML = Object.entries(APP_THEMES.THEMES).map(([id,t])=>`
+    <button class="btn ${id===current?'btn-primary':'btn-ghost'}" onclick="changeTheme('${id}')">${t.name}</button>
   `).join('');
 
-  wrap.querySelectorAll('.theme-card').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const id = btn.dataset.theme;
-      APP.state.theme = id;
-      APP_THEMES.applyTheme(id);
-      renderThemes();
-      APP.showToast('Тема: ' + APP_THEMES.THEMES[id].name);
-    });
-  });
-}
-
-function loadSupabase(){
+  // Загрузка сохраненных ключей
   const cfg = APP.store.get('supabase', null);
-  const statusEl = document.getElementById('sbStatus');
-  
-  if(cfg && cfg.url && cfg.key){
-    document.getElementById('sbUrl').value = cfg.url;
-    document.getElementById('sbKey').value = cfg.key;
-    
-    if (window.supabase) {
-      statusEl.textContent = 'Проверка связи...';
-      statusEl.style.color = 'var(--muted)';
-      try {
-        const test = window.supabase.createClient(cfg.url, cfg.key);
-        test.from('profile').select('count', { count: 'exact', head: true }).limit(1)
-          .then(({ error }) => {
-            if (error && error.code !== 'PGRST116') {
-              statusEl.textContent = 'Ошибка подключения';
-              statusEl.style.color = '#c82a2a';
-            } else {
-              statusEl.textContent = 'Подключено (Синхронизация включена)';
-              statusEl.style.color = '#4a9d7f';
-            }
-          });
-      } catch(e) {
-        statusEl.textContent = 'Ошибка конфигурации';
-        statusEl.style.color = '#c82a2a';
-      }
-    }
-  } else {
-    statusEl.textContent = 'Не подключено (Локальный режим)';
-    statusEl.style.color = 'var(--accent)';
+  if(cfg) {
+    document.getElementById('sbUrl').value = cfg.url || '';
+    document.getElementById('sbKey').value = cfg.key || '';
   }
-}
 
-function bindEvents(){
-  document.getElementById('sbSave').addEventListener('click', async ()=>{
+  document.getElementById('sbSave').addEventListener('click', ()=>{
     const url = document.getElementById('sbUrl').value.trim();
     const key = document.getElementById('sbKey').value.trim();
-    const statusEl = document.getElementById('sbStatus');
-    
-    if(!url || !key){ APP.showToast('Заполни оба поля'); return; }
-    
+    if(!url || !key) return alert('Заполни поля');
     APP.store.set('supabase', {url, key});
-    statusEl.textContent = 'Проверка связи...';
-    statusEl.style.color = 'var(--muted)';
-    
-    try {
-      const testClient = window.supabase.createClient(url, key);
-      const { error } = await testClient.from('profile').select('count', { count: 'exact', head: true }).limit(1);
-      
-      if (error && error.code !== 'PGRST116') {
-         statusEl.textContent = 'Ошибка: ' + error.message;
-         statusEl.style.color = '#c82a2a';
-         APP.showToast('Ошибка Supabase');
-      } else {
-         statusEl.textContent = 'Успех! Синхронизация включена.';
-         statusEl.style.color = '#4a9d7f';
-         APP.showToast('Успех! Перезагрузка...');
-         setTimeout(() => location.reload(), 1500);
-      }
-    } catch (e) {
-      statusEl.textContent = 'Ошибка сети или ключа';
-      statusEl.style.color = '#c82a2a';
-      APP.showToast('Ошибка подключения');
-    }
+    alert('Сохранено! Перезагрузи страницу.');
   });
+}
 
-  document.getElementById('sbClear').addEventListener('click', ()=>{
-    localStorage.removeItem('ap_supabase');
-    document.getElementById('sbUrl').value = '';
-    document.getElementById('sbKey').value = '';
-    document.getElementById('sbStatus').textContent = 'Отключено';
-    document.getElementById('sbStatus').style.color = 'var(--accent)';
-    APP.showToast('Supabase отключён');
-  });
-
-  document.getElementById('exportBtn').addEventListener('click', ()=>{
-    const data = {
-      progress: APP.state.progress, tasks: APP.state.tasks,
-      xp: APP.state.xp, streak: APP.state.streak, meta: APP.store.get('meta', [])
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'artist-path-backup-' + Date.now() + '.json';
-    a.click();
-    APP.showToast('Экспортировано');
-  });
-
-  document.getElementById('importBtn').addEventListener('click', ()=>document.getElementById('importFile').click());
+function changeTheme(id) {
+  APP.state.theme = id;
+  APP_THEMES.applyTheme(id);
   
-  document.getElementById('importFile').addEventListener('change', e=>{
-    const f = e.target.files[0];
-    if(!f) return;
-    const r = new FileReader();
-    r.onload = ev=>{
-      try{
-        const data = JSON.parse(ev.target.result);
-        if(data.progress) APP.state.progress = data.progress;
-        if(data.tasks) APP.state.tasks = data.tasks;
-        if(data.xp) APP.state.xp = data.xp;
-        if(data.streak) APP.state.streak = data.streak;
-        if(data.meta) APP.store.set('meta', data.meta);
-        APP.saveProgress(); APP.saveTasks();
-        APP.store.set('xp', APP.state.xp); APP.store.set('streak', APP.state.streak);
-        APP.showToast('Импортировано. Перезагрузи страницу.');
-      }catch(err){
-        APP.showToast('Ошибка чтения файла');
-      }
-    };
-    r.readAsText(f);
-  });
-
-  document.getElementById('resetBtn').addEventListener('click', ()=>{
-    if(!confirm('Сбросить весь прогресс?')) return;
-    localStorage.removeItem('ap_progress'); localStorage.removeItem('ap_tasks');
-    localStorage.removeItem('ap_xp'); localStorage.removeItem('ap_streak');
-    APP.showToast('Сброшено. Перезагрузи страницу.');
-  });
+  // Перерисовываем кнопки, чтобы выделить активную
+  const grid = document.getElementById('themeGrid');
+  grid.innerHTML = Object.entries(APP_THEMES.THEMES).map(([tId,t])=>`
+    <button class="btn ${tId===id?'btn-primary':'btn-ghost'}" onclick="changeTheme('${tId}')">${t.name}</button>
+  `).join('');
 }
 
 APP.boot();
