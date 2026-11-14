@@ -7,55 +7,89 @@
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+
 <div class="topbar">
   <div class="brand"><div class="brand-mark">A</div><span>Путь Художника</span></div>
   <button class="btn btn-primary" id="addBtn">+ Добавить</button>
 </div>
+
 <nav class="sidebar">
   <a href="index.html"><span class="icon icon-home"></span> Дашборд</a>
   <a href="learn.html"><span class="icon icon-book"></span> Обучение</a>
   <a href="tasks.html"><span class="icon icon-task"></span> Задачи</a>
-  <a href="gallery.html" class="active"><span class="icon icon-image"></span> Галерея</a>
+  <a href="gallery.html"><span class="icon icon-image"></span> Галерея</a>
   <a href="styles.html"><span class="icon icon-palette"></span> Стили</a>
   <a href="ideas.html"><span class="icon icon-bulb"></span> Идеи</a>
   <a href="settings.html"><span class="icon icon-settings"></span> Профиль</a>
 </nav>
+
 <div class="main-wrap">
   <div class="content">
     <h1>Галерея</h1>
     <p class="sub">Твои рисунки.</p>
+
     <div class="task-filters" id="catTabs">
       <button class="filter-chip active" data-cat="all">Все</button>
       <button class="filter-chip" data-cat="hand">От руки</button>
       <button class="filter-chip" data-cat="ibis">Ibis</button>
       <button class="filter-chip" data-cat="krita">Krita</button>
     </div>
+
     <div id="galleryWrap" class="gallery-grid"></div>
-    <div id="emptyWrap" class="empty" style="display:none; text-align:center; padding:40px; color:var(--muted);">
+    <div id="emptyWrap" class="empty" style="display:none">
       <h3>Пока пусто</h3>
       <p>Нажми «+ Добавить»</p>
     </div>
   </div>
 </div>
+
 <nav class="bottom-nav">
   <a href="index.html"><span class="icon icon-home"></span>Главная</a>
   <a href="learn.html"><span class="icon icon-book"></span>Уроки</a>
   <a href="tasks.html"><span class="icon icon-task"></span>Задачи</a>
-  <a href="gallery.html" class="active"><span class="icon icon-image"></span>Галерея</a>
+  <a href="gallery.html"><span class="icon icon-image"></span>Галерея</a>
   <a href="settings.html"><span class="icon icon-settings"></span>Профиль</a>
 </nav>
 
+<!-- Модалка добавления (скрыта по умолчанию) -->
 <div class="modal-bg" id="addModal">
   <div class="modal">
     <h2>Добавить рисунок</h2>
-    <div class="field"><label>Файл</label><input type="file" id="fileInput" accept="image/*"></div>
+    <div class="field">
+      <label>Файл</label>
+      <input type="file" id="fileInput" accept="image/*">
+    </div>
     <div id="preview" style="margin-bottom:14px"></div>
-    <div class="field"><label>Название</label><input type="text" id="titleInput"></div>
-    <div class="field"><label>Категория</label><select id="catSelect"><option value="hand">От руки</option><option value="ibis">Ibis</option><option value="krita">Krita</option></select></div>
+    <div class="field">
+      <label>Название</label>
+      <input type="text" id="titleInput" placeholder="Имя рисунка">
+    </div>
+    <div class="field">
+      <label>Категория</label>
+      <select id="catSelect">
+        <option value="hand">От руки</option>
+        <option value="ibis">Ibis Paint</option>
+        <option value="krita">Krita</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Заметка</label>
+      <textarea id="notesInput" placeholder="Что получилось..."></textarea>
+    </div>
     <div style="display:flex; gap:8px">
       <button class="btn btn-ghost btn-block" id="cancelBtn">Отмена</button>
       <button class="btn btn-primary btn-block" id="saveBtn">Сохранить</button>
     </div>
+  </div>
+</div>
+
+<!-- Модалка просмотра (скрыта по умолчанию) -->
+<div class="modal-bg" id="viewModal">
+  <div class="modal" style="max-width:800px; padding:10px;">
+    <button class="btn btn-ghost" id="closeView" style="margin-bottom:10px;">← Закрыть</button>
+    <img id="viewImg" style="width:100%; border-radius:10px; display:block;" src="" alt="">
+    <h2 id="viewTitle" style="margin-top:15px; font-size:20px;"></h2>
+    <p id="viewInfo" style="font-size:14px; color:var(--muted);"></p>
   </div>
 </div>
 
@@ -67,10 +101,33 @@ let currentCat = 'all';
 let pendingFile = null;
 
 function onReady(){
-  document.getElementById('addBtn').onclick = ()=>document.getElementById('addModal').classList.add('show');
-  document.getElementById('cancelBtn').onclick = ()=>document.getElementById('addModal').classList.remove('show');
-  document.getElementById('fileInput').onchange = e => { pendingFile = e.target.files[0]; };
+  bindEvents();
+  renderGallery();
+}
+
+function bindEvents(){
+  // Открытие модалки
+  document.getElementById('addBtn').onclick = () => document.getElementById('addModal').classList.add('show');
+  document.getElementById('cancelBtn').onclick = () => document.getElementById('addModal').classList.remove('show');
+  
+  // Закрытие просмотра
+  document.getElementById('closeView').onclick = () => document.getElementById('viewModal').classList.remove('show');
+
+  // Выбор файла
+  document.getElementById('fileInput').onchange = e => {
+    pendingFile = e.target.files[0];
+    if(!pendingFile) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      document.getElementById('preview').innerHTML = `<img src="${ev.target.result}" style="max-width:100%; max-height:160px; border-radius:8px; object-fit:contain;">`;
+    };
+    r.readAsDataURL(pendingFile);
+  };
+
+  // Сохранение
   document.getElementById('saveBtn').onclick = saveImage;
+
+  // Фильтры
   document.getElementById('catTabs').onclick = e => {
     const chip = e.target.closest('.filter-chip');
     if(!chip) return;
@@ -79,17 +136,29 @@ function onReady(){
     chip.classList.add('active');
     renderGallery();
   };
-  renderGallery();
 }
 
 async function saveImage(){
   if(!pendingFile) return alert('Выбери файл');
+  const title = document.getElementById('titleInput').value;
+  const cat = document.getElementById('catSelect').value;
+  const notes = document.getElementById('notesInput').value;
+
   const reader = new FileReader();
   reader.onload = async ev => {
     const id = 'img_' + Date.now();
     await APP.dbPut({ id, data: ev.target.result });
-    APP.addGalleryItem({ id, title: document.getElementById('titleInput').value || 'Без названия', cat: document.getElementById('catSelect').value, created: Date.now() });
+    
+    // Добавляем через новую функцию с XP
+    APP.addGalleryItem({ id, title: title || 'Без названия', cat, notes, created: Date.now() });
+    
+    // Очищаем форму и закрываем
     document.getElementById('addModal').classList.remove('show');
+    document.getElementById('titleInput').value = '';
+    document.getElementById('notesInput').value = '';
+    document.getElementById('preview').innerHTML = '';
+    pendingFile = null;
+    
     renderGallery();
   };
   reader.readAsDataURL(pendingFile);
@@ -97,17 +166,39 @@ async function saveImage(){
 
 async function renderGallery(){
   const meta = APP.state.meta;
-  let list = currentCat === 'all' ? meta : meta.filter(m=>m.cat === currentCat);
+  let list = meta;
+  if(currentCat !== 'all') list = list.filter(m=>m.cat === currentCat);
+  list.sort((a,b)=>b.created - a.created);
+
   const wrap = document.getElementById('galleryWrap');
   wrap.innerHTML = '';
-  if(!list.length) { document.getElementById('emptyWrap').style.display = 'block'; return; }
-  document.getElementById('emptyWrap').style.display = 'none';
+  document.getElementById('emptyWrap').style.display = list.length ? 'none' : 'block';
+
   for(const m of list){
     const rec = await APP.dbGet(m.id);
-    if(!rec) continue;
+    if (!rec) continue;
+
     const card = document.createElement('div');
     card.className = 'gallery-card';
-    card.innerHTML = `<button class="del">✕</button><img src="${rec.data}"><div class="meta"><span class="cat-tag cat-${m.cat}">${APP.CAT_LABEL[m.cat]}</span><div class="name">${m.title}</div></div>`;
+    card.innerHTML = `
+      <button class="del">✕</button>
+      <img src="${rec.data}" alt="">
+      <div class="meta">
+        <span class="cat-tag cat-${m.cat}">${APP.CAT_LABEL[m.cat]}</span>
+        <div class="name">${m.title}</div>
+      </div>
+    `;
+    
+    // Просмотр на весь экран
+    card.onclick = (e) => {
+      if(e.target.classList.contains('del')) return;
+      document.getElementById('viewTitle').textContent = m.title;
+      document.getElementById('viewImg').src = rec.data;
+      document.getElementById('viewInfo').textContent = m.notes || '';
+      document.getElementById('viewModal').classList.add('show');
+    };
+    
+    // Удаление
     card.querySelector('.del').onclick = async (e) => {
       e.stopPropagation();
       if(!confirm('Удалить?')) return;
@@ -118,6 +209,7 @@ async function renderGallery(){
     wrap.appendChild(card);
   }
 }
+
 APP.boot();
 </script>
 </body>
