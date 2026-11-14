@@ -1,145 +1,41 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Профиль — Путь Художника</title>
-<link rel="stylesheet" href="css/style.css">
-</head>
-<body>
+async function saveImage(){
+  if(!pendingFile) return alert('Выбери файл');
+  const title = document.getElementById('titleInput').value;
+  const cat = document.getElementById('catSelect').value;
+  const notes = document.getElementById('notesInput').value;
 
-<div class="topbar">
-  <div class="brand"><div class="brand-mark">A</div><span>Путь Художника</span></div>
-</div>
-
-<nav class="sidebar">
-  <a href="index.html"><span class="icon icon-home"></span> Дашборд</a>
-  <a href="learn.html"><span class="icon icon-book"></span> Обучение</a>
-  <a href="tasks.html"><span class="icon icon-task"></span> Задачи</a>
-  <a href="gallery.html"><span class="icon icon-image"></span> Галерея</a>
-  <a href="styles.html"><span class="icon icon-palette"></span> Стили</a>
-  <a href="ideas.html"><span class="icon icon-bulb"></span> Идеи</a>
-  <a href="settings.html"><span class="icon icon-settings"></span> Профиль</a>
-</nav>
-
-<div class="main-wrap">
-  <div class="content">
-    <h1>Профиль</h1>
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    const id = 'img_' + Date.now();
+    await APP.dbPut({ id, data: ev.target.result });
     
-    <!-- Карточка ранга -->
-    <div class="card" style="text-align:center; padding:30px 20px;">
-      <div style="font-size:60px; line-height:1; margin-bottom:10px;" id="rankIcon">🌱</div>
-      <h2 style="font-size:24px; margin-bottom:4px;" id="rankTitle">Новичок</h2>
-      <p style="color:var(--muted); margin-bottom:16px;" id="xpText">0 XP</p>
-      
-      <div class="xp-bar" style="height:16px; margin-bottom:8px;">
-        <div class="xp-fill" id="rankFill" style="width:0%"></div>
-      </div>
-      <p style="font-size:12px; color:var(--muted);" id="nextRankText">До следующего ранга: 50 XP</p>
-    </div>
-
-    <!-- Достижения -->
-    <h3>Награды</h3>
-    <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); gap:10px; margin-bottom:20px;" id="achGrid"></div>
-
-    <!-- Темы -->
-    <h3>Темы оформления</h3>
-    <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px; margin-bottom:20px;" id="themeGrid"></div>
-
-    <div class="card">
-      <h3>Сброс</h3>
-      <button class="btn btn-ghost btn-block" id="resetBtn" style="color:red; border-color:red;">Сбросить прогресс</button>
-    </div>
-  </div>
-</div>
-
-<nav class="bottom-nav">
-  <a href="index.html"><span class="icon icon-home"></span>Главная</a>
-  <a href="learn.html"><span class="icon icon-book"></span>Уроки</a>
-  <a href="tasks.html"><span class="icon icon-task"></span>Задачи</a>
-  <a href="gallery.html"><span class="icon icon-image"></span>Галерея</a>
-  <a href="settings.html"><span class="icon icon-settings"></span>Профиль</a>
-</nav>
-
-<script src="js/data.js"></script>
-<script src="js/themes.js"></script>
-<script src="js/app.js"></script>
-<script>
-function onReady(){
-  updateProfileUI();
-  renderAchievements();
-  renderThemes();
-  
-  document.getElementById('resetBtn').onclick = () => {
-    if(!confirm('Сбросить весь прогресс?')) return;
-    localStorage.clear();
-    location.reload();
+    // ИСПОЛЬЗУЕМ НОВУЮ ФУНКЦИЮ
+    APP.addGalleryItem({ id, title: title || 'Без названия', cat, notes, created: Date.now() });
+    
+    document.getElementById('addModal').classList.remove('show');
+    document.getElementById('titleInput').value = '';
+    document.getElementById('notesInput').value = '';
+    pendingFile = null;
+    document.getElementById('preview').innerHTML = '';
+    renderGallery();
   };
+  reader.readAsDataURL(pendingFile);
 }
 
-function updateProfileUI() {
-  const { current, next, percent } = APP.getRankInfo();
-  
-  document.getElementById('rankIcon').textContent = current.icon;
-  document.getElementById('rankTitle').textContent = current.title;
-  document.getElementById('xpText').textContent = `${APP.state.xp} XP`;
-  document.getElementById('rankFill').style.width = percent + '%';
-  
-  if (next) {
-    document.getElementById('nextRankText').textContent = `До ранга "${next.title}": ${next.minXP - APP.state.xp} XP`;
-  } else {
-    document.getElementById('nextRankText').textContent = 'Вы достигли максимального ранга! 👑';
+async function renderGallery(){
+  const meta = APP.state.meta; // Берем из состояния APP
+  let list = meta;
+  if(currentCat !== 'all') list = list.filter(m=>m.cat === currentCat);
+  list.sort((a,b)=>b.created - a.created);
+
+  const wrap = document.getElementById('galleryWrap');
+  wrap.innerHTML = '';
+  document.getElementById('emptyWrap').style.display = list.length ? 'none' : 'block';
+
+  for(const m of list){
+    const rec = await APP.dbGet(m.id);
+    if (!rec) continue;
+    // ... остальной код создания карточки (оставь как было)
+    // В обработчике удаления используй APP.delGalleryItem(m.id);
   }
 }
-
-function renderAchievements() {
-  const grid = document.getElementById('achGrid');
-  grid.innerHTML = APP.ACHIEVEMENTS.map(a => {
-    const unlocked = APP.state.unlockedAch.includes(a.id);
-    return `
-      <div class="card" style="margin:0; text-align:center; opacity:${unlocked ? 1 : 0.4}; padding:12px;">
-        <div style="font-size:28px; margin-bottom:6px;">${a.icon}</div>
-        <div style="font-size:12px; font-weight:bold;">${a.title}</div>
-        <div style="font-size:10px; color:var(--muted); margin-top:4px;">${a.desc}</div>
-      </div>
-    `;
-  }).join('');
-}
-
-function renderThemes() {
-  const grid = document.getElementById('themeGrid');
-  const current = APP.state.theme;
-  
-  // Сделаем так, чтобы некоторые темы требовали ранга
-  const lockedThemes = {
-    'ultrakill': 500, // Нужно 500 XP
-    'undertale': 300,
-    'deltarune': 300
-  };
-
-  grid.innerHTML = Object.entries(APP_THEMES.THEMES).map(([id,t])=>{
-    const isLocked = lockedThemes[id] && APP.state.xp < lockedThemes[id];
-    
-    if (isLocked) {
-      return `
-        <button class="btn btn-ghost" style="opacity:0.5; cursor:not-allowed;" onclick="alert('Нужно ${lockedThemes[id]} XP для разблокировки')">
-          🔒 ${t.name}
-        </button>
-      `;
-    }
-    
-    return `<button class="btn ${id===current?'btn-primary':'btn-ghost'}" onclick="changeTheme('${id}')">${t.name}</button>`;
-  }).join('');
-}
-
-window.changeTheme = function(id) {
-  APP.state.theme = id;
-  APP_THEMES.applyTheme(id);
-  localStorage.setItem('artist_theme', id);
-  renderThemes();
-};
-
-APP.boot();
-</script>
-</body>
-</html>
