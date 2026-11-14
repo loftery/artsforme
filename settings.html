@@ -19,7 +19,7 @@
   <a href="gallery.html"><span class="icon icon-image"></span> Галерея</a>
   <a href="styles.html"><span class="icon icon-palette"></span> Стили</a>
   <a href="ideas.html"><span class="icon icon-bulb"></span> Идеи</a>
-  <a href="settings.html" class="active"><span class="icon icon-settings"></span> Профиль</a>
+  <a href="settings.html"><span class="icon icon-settings"></span> Профиль</a>
 </nav>
 
 <div class="main-wrap">
@@ -27,30 +27,29 @@
     <h1>Профиль</h1>
     
     <!-- Карточка ранга -->
-    <div class="card" style="text-align:center; padding:40px 20px; background:linear-gradient(to bottom, var(--card), var(--bg2));">
-      <div style="font-size:80px; line-height:1; margin-bottom:16px; filter:drop-shadow(0 10px 15px var(--accent-soft));" id="rankIcon">🌱</div>
-      <div class="rank-badge" id="rankTitle">Новичок</div>
-      <h2 style="font-size:32px; margin-bottom:8px;" id="xpText">0 XP</h2>
+    <div class="card" style="text-align:center; padding:30px 20px;">
+      <div style="font-size:60px; line-height:1; margin-bottom:10px;" id="rankIcon">🌱</div>
+      <h2 style="font-size:24px; margin-bottom:4px;" id="rankTitle">Новичок</h2>
+      <p style="color:var(--muted); margin-bottom:16px;" id="xpText">0 XP</p>
       
-      <div class="xp-bar" style="max-width:400px; margin:16px auto;">
+      <div class="xp-bar" style="height:16px; margin-bottom:8px;">
         <div class="xp-fill" id="rankFill" style="width:0%"></div>
       </div>
-      <p style="font-size:13px; color:var(--muted); font-weight:600;" id="nextRankText">До следующего ранга: 50 XP</p>
+      <p style="font-size:12px; color:var(--muted);" id="nextRankText">До следующего ранга: 50 XP</p>
     </div>
 
     <!-- Достижения -->
-    <h3 style="margin-top:30px; margin-bottom:16px; font-size:20px;">Награды</h3>
-    <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px;" id="achGrid"></div>
+    <h3>Награды</h3>
+    <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); gap:10px; margin-bottom:20px;" id="achGrid"></div>
 
     <!-- Темы -->
-    <h3 style="margin-top:30px; margin-bottom:16px; font-size:20px;">Темы оформления</h3>
-    <p style="font-size:13px; color:var(--muted); margin-bottom:12px;">Некоторые темы закрыты до получения определенного ранга.</p>
-    <div class="grid-themes" id="themeGrid"></div>
+    <h3>Темы оформления</h3>
+    <p style="font-size:12px; color:var(--muted); margin-bottom:12px;">Некоторые темы закрыты до получения определенного ранга.</p>
+    <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px; margin-bottom:20px;" id="themeGrid"></div>
 
-    <div class="card" style="margin-top:30px;">
-      <h3 style="color:var(--accent);">Опасная зона</h3>
-      <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">Сброс удалит весь прогресс, XP и достижения. Рисунки в галерее останутся.</p>
-      <button class="btn btn-ghost btn-block" id="resetBtn" style="color:#c82a2a; border-color:#c82a2a;">Сбросить прогресс</button>
+    <div class="card">
+      <h3>Сброс</h3>
+      <button class="btn btn-ghost btn-block" id="resetBtn" style="color:red; border-color:red;">Сбросить прогресс</button>
     </div>
   </div>
 </div>
@@ -60,30 +59,25 @@
   <a href="learn.html"><span class="icon icon-book"></span>Уроки</a>
   <a href="tasks.html"><span class="icon icon-task"></span>Задачи</a>
   <a href="gallery.html"><span class="icon icon-image"></span>Галерея</a>
-  <a href="settings.html" class="active"><span class="icon icon-settings"></span>Профиль</a>
+  <a href="settings.html"><span class="icon icon-settings"></span>Профиль</a>
 </nav>
 
 <script src="js/data.js"></script>
 <script src="js/themes.js"></script>
 <script src="js/app.js"></script>
 <script>
-// Закрытые темы (требуемый XP)
-const LOCKED_THEMES = {
-  'undertale': 150, // Начинающий
-  'deltarune': 150,
-  'pressure': 300,  // Практик
-  'silksong': 500,  // Художник
-  'ultrakill': 800  // Мастер
-};
-
 function onReady(){
   updateProfileUI();
   renderAchievements();
   renderThemes();
   
   document.getElementById('resetBtn').onclick = () => {
-    if(!confirm('Сбросить весь прогресс? Это действие необратимо.')) return;
-    localStorage.clear();
+    if(!confirm('Сбросить весь прогресс? Это удалит все награды и XP, но рисунки останутся.')) return;
+    localStorage.removeItem('ap_progress');
+    localStorage.removeItem('ap_tasks');
+    localStorage.removeItem('ap_xp');
+    localStorage.removeItem('ap_streak');
+    localStorage.removeItem('ap_achievements');
     location.reload();
   };
 }
@@ -108,10 +102,10 @@ function renderAchievements() {
   grid.innerHTML = APP.ACHIEVEMENTS.map(a => {
     const unlocked = APP.state.unlockedAch.includes(a.id);
     return `
-      <div class="card" style="margin:0; text-align:center; opacity:${unlocked ? 1 : 0.4}; padding:16px; border-color:${unlocked ? 'var(--accent)' : 'var(--line)'}; background:${unlocked ? 'var(--accent-soft)' : 'var(--card)'};">
-        <div style="font-size:36px; margin-bottom:10px; filter:${unlocked ? 'grayscale(0)' : 'grayscale(1)'};">${a.icon}</div>
-        <div style="font-size:14px; font-weight:800; color:${unlocked ? 'var(--accent)' : 'var(--text)'};">${a.title}</div>
-        <div style="font-size:11px; color:var(--muted); margin-top:6px; line-height:1.3;">${a.desc}</div>
+      <div class="card" style="margin:0; text-align:center; opacity:${unlocked ? 1 : 0.4}; padding:12px;">
+        <div style="font-size:28px; margin-bottom:6px;">${a.icon}</div>
+        <div style="font-size:12px; font-weight:bold;">${a.title}</div>
+        <div style="font-size:10px; color:var(--muted); margin-top:4px;">${a.desc}</div>
       </div>
     `;
   }).join('');
@@ -121,23 +115,36 @@ function renderThemes() {
   const grid = document.getElementById('themeGrid');
   const current = APP.state.theme;
   
+  const lockedThemes = {
+    'ultrakill': 800,
+    'undertale': 150,
+    'deltarune': 150,
+    'silksong': 500,
+    'pressure': 300
+  };
+
   grid.innerHTML = Object.entries(APP_THEMES.THEMES).map(([id,t])=>{
-    const requiredXP = LOCKED_THEMES[id];
-    const isLocked = requiredXP && APP.state.xp < requiredXP;
+    const isLocked = lockedThemes[id] && APP.state.xp < lockedThemes[id];
+    const isActive = id === current;
     
+    // Цвета для кнопки берем из самой темы, чтобы текст всегда читался
+    const bgColor = t.vars['--card'];
+    const textColor = t.vars['--text'];
+    const borderColor = isActive ? t.vars['--accent'] : 'var(--line)';
+
     if (isLocked) {
       return `
-        <button class="theme-btn locked" onclick="APP.showToast('Нужно ${requiredXP} XP')">
-          <div style="font-size:15px; margin-bottom:4px;">${t.name}</div>
-          <div style="font-size:11px; color:var(--muted);">${requiredXP} XP</div>
+        <button class="btn" style="background:var(--bg); color:var(--muted); border:2px dashed var(--line); opacity:0.6; cursor:not-allowed; padding:12px 8px; flex-direction:column; gap:4px;" onclick="alert('Нужно ${lockedThemes[id]} XP для разблокировки')">
+          <span style="font-size:14px;">🔒 ${t.name}</span>
+          <span style="font-size:10px; font-weight:normal;">${lockedThemes[id]} XP</span>
         </button>
       `;
     }
     
     return `
-      <button class="theme-btn ${id===current?'active':''}" onclick="changeTheme('${id}')">
-        <div style="font-size:15px; margin-bottom:4px;">${t.name}</div>
-        <div style="font-size:11px; color:var(--muted);">Открыто</div>
+      <button class="btn" style="background:${bgColor}; color:${textColor}; border:2px solid ${borderColor}; padding:12px 8px; flex-direction:column; gap:4px; box-shadow: ${isActive ? '0 4px 12px '+t.vars['--accent-soft'] : 'none'}" onclick="changeTheme('${id}')">
+        <span style="font-size:14px;">${t.name}</span>
+        ${isActive ? '<span style="font-size:10px; opacity:0.7;">Активна</span>' : ''}
       </button>
     `;
   }).join('');
