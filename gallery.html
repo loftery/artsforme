@@ -20,7 +20,7 @@
   <a href="gallery.html"><span class="icon icon-image"></span> Галерея</a>
   <a href="styles.html"><span class="icon icon-palette"></span> Стили</a>
   <a href="ideas.html"><span class="icon icon-bulb"></span> Идеи</a>
-  <a href="settings.html"><span class="icon icon-settings"></span> Настройки</a>
+  <a href="settings.html"><span class="icon icon-settings"></span> Профиль</a>
 </nav>
 
 <div class="main-wrap">
@@ -57,7 +57,7 @@
   <a href="learn.html"><span class="icon icon-book"></span>Уроки</a>
   <a href="tasks.html"><span class="icon icon-task"></span>Задачи</a>
   <a href="gallery.html"><span class="icon icon-image"></span>Галерея</a>
-  <a href="settings.html"><span class="icon icon-settings"></span>Ещё</a>
+  <a href="settings.html"><span class="icon icon-settings"></span>Профиль</a>
 </nav>
 
 <div class="modal-bg" id="addModal">
@@ -124,10 +124,9 @@ function bindEvents(){
     renderGallery();
   };
 
-  // Экспорт
   document.getElementById('exportBtn').onclick = async () => {
     const images = await APP.dbAll();
-    const data = { meta: APP.store.get('meta', []), images };
+    const data = { meta: APP.state.meta, images };
     const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -135,7 +134,6 @@ function bindEvents(){
     a.click();
   };
 
-  // Импорт
   document.getElementById('importBtn').onclick = () => document.getElementById('importFile').click();
   document.getElementById('importFile').onchange = e => {
     const file = e.target.files[0];
@@ -143,7 +141,10 @@ function bindEvents(){
     const reader = new FileReader();
     reader.onload = async ev => {
       const data = JSON.parse(ev.target.result);
-      if (data.meta) APP.store.set('meta', data.meta);
+      if (data.meta) {
+        APP.state.meta = data.meta;
+        APP.saveState();
+      }
       if (data.images) {
         for (const img of data.images) await APP.dbPut(img);
       }
@@ -164,9 +165,8 @@ async function saveImage(){
   reader.onload = async ev => {
     const id = 'img_' + Date.now();
     await APP.dbPut({ id, data: ev.target.result });
-    const meta = APP.store.get('meta', []);
-    meta.push({ id, title: title || 'Без названия', cat, notes, created: Date.now() });
-    APP.store.set('meta', meta);
+    
+    APP.addGalleryItem({ id, title: title || 'Без названия', cat, notes, created: Date.now() });
     
     document.getElementById('addModal').classList.remove('show');
     document.getElementById('titleInput').value = '';
@@ -179,7 +179,7 @@ async function saveImage(){
 }
 
 async function renderGallery(){
-  const meta = APP.store.get('meta', []);
+  const meta = APP.state.meta;
   let list = meta;
   if(currentCat !== 'all') list = list.filter(m=>m.cat === currentCat);
   list.sort((a,b)=>b.created - a.created);
@@ -213,7 +213,7 @@ async function renderGallery(){
       e.stopPropagation();
       if(!confirm('Удалить?')) return;
       await APP.dbDel(m.id);
-      APP.store.set('meta', APP.store.get('meta', []).filter(x=>x.id !== m.id));
+      APP.delGalleryItem(m.id);
       renderGallery();
     };
     wrap.appendChild(card);
