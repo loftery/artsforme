@@ -51,7 +51,7 @@
   <a href="settings.html"><span class="icon icon-settings"></span>Профиль</a>
 </nav>
 
-<!-- Модалка добавления (скрыта по умолчанию) -->
+<!-- Модалка добавления -->
 <div class="modal-bg" id="addModal">
   <div class="modal">
     <h2>Добавить рисунок</h2>
@@ -76,20 +76,32 @@
       <label>Заметка</label>
       <textarea id="notesInput" placeholder="Что получилось..."></textarea>
     </div>
-    <div style="display:flex; gap:8px">
+    <div style="display:flex; gap:8px; margin-top:20px;">
       <button class="btn btn-ghost btn-block" id="cancelBtn">Отмена</button>
       <button class="btn btn-primary btn-block" id="saveBtn">Сохранить</button>
     </div>
   </div>
 </div>
 
-<!-- Модалка просмотра (скрыта по умолчанию) -->
+<!-- Модалка просмотра (ИСПРАВЛЕНА) -->
 <div class="modal-bg" id="viewModal">
-  <div class="modal" style="max-width:800px; padding:10px;">
-    <button class="btn btn-ghost" id="closeView" style="margin-bottom:10px;">← Закрыть</button>
-    <img id="viewImg" style="width:100%; border-radius:10px; display:block;" src="" alt="">
-    <h2 id="viewTitle" style="margin-top:15px; font-size:20px;"></h2>
-    <p id="viewInfo" style="font-size:14px; color:var(--muted);"></p>
+  <div class="modal" style="max-width:800px; padding:0; overflow:hidden; display:flex; flex-direction:column;">
+    <div style="padding:15px 20px; background:var(--card); border-bottom:2px solid var(--line); display:flex; justify-content:space-between; align-items:center;">
+      <h2 id="viewTitle" style="margin:0; font-size:18px;">Название</h2>
+      <button class="btn btn-ghost" id="closeView" style="padding:6px 12px;">✕ Закрыть</button>
+    </div>
+    
+    <div style="background:#111; display:flex; justify-content:center; align-items:center; min-height:300px; max-height:60vh; padding:10px;">
+      <img id="viewImg" style="max-width:100%; max-height:60vh; object-fit:contain; border-radius:4px;" src="" alt="">
+    </div>
+    
+    <div style="padding:20px; background:var(--card);">
+      <div style="display:flex; gap:10px; margin-bottom:10px;">
+        <span id="viewCat" class="cat-tag" style="font-size:12px; padding:4px 10px;">Ibis</span>
+        <span id="viewDate" style="font-size:13px; color:var(--muted); align-self:center;"></span>
+      </div>
+      <p id="viewInfo" style="font-size:14px; color:var(--text); margin:0; line-height:1.6;"></p>
+    </div>
   </div>
 </div>
 
@@ -106,14 +118,10 @@ function onReady(){
 }
 
 function bindEvents(){
-  // Открытие модалки
   document.getElementById('addBtn').onclick = () => document.getElementById('addModal').classList.add('show');
   document.getElementById('cancelBtn').onclick = () => document.getElementById('addModal').classList.remove('show');
-  
-  // Закрытие просмотра
   document.getElementById('closeView').onclick = () => document.getElementById('viewModal').classList.remove('show');
-
-  // Выбор файла
+  
   document.getElementById('fileInput').onchange = e => {
     pendingFile = e.target.files[0];
     if(!pendingFile) return;
@@ -124,10 +132,8 @@ function bindEvents(){
     r.readAsDataURL(pendingFile);
   };
 
-  // Сохранение
   document.getElementById('saveBtn').onclick = saveImage;
 
-  // Фильтры
   document.getElementById('catTabs').onclick = e => {
     const chip = e.target.closest('.filter-chip');
     if(!chip) return;
@@ -148,11 +154,8 @@ async function saveImage(){
   reader.onload = async ev => {
     const id = 'img_' + Date.now();
     await APP.dbPut({ id, data: ev.target.result });
-    
-    // Добавляем через новую функцию с XP
     APP.addGalleryItem({ id, title: title || 'Без названия', cat, notes, created: Date.now() });
     
-    // Очищаем форму и закрываем
     document.getElementById('addModal').classList.remove('show');
     document.getElementById('titleInput').value = '';
     document.getElementById('notesInput').value = '';
@@ -189,16 +192,23 @@ async function renderGallery(){
       </div>
     `;
     
-    // Просмотр на весь экран
     card.onclick = (e) => {
       if(e.target.classList.contains('del')) return;
+      
+      // Заполняем модалку
       document.getElementById('viewTitle').textContent = m.title;
       document.getElementById('viewImg').src = rec.data;
-      document.getElementById('viewInfo').textContent = m.notes || '';
+      
+      const catEl = document.getElementById('viewCat');
+      catEl.textContent = APP.CAT_LABEL[m.cat];
+      catEl.className = `cat-tag cat-${m.cat}`;
+      
+      document.getElementById('viewDate').textContent = APP.formatDate(m.created);
+      document.getElementById('viewInfo').textContent = m.notes || 'Без заметок';
+      
       document.getElementById('viewModal').classList.add('show');
     };
     
-    // Удаление
     card.querySelector('.del').onclick = async (e) => {
       e.stopPropagation();
       if(!confirm('Удалить?')) return;
