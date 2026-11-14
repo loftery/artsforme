@@ -144,3 +144,39 @@ button[onclick^="alert('Нужно"] {
   border: 2px dashed var(--line) !important;
   opacity: 0.6;
 }
+/* Исправление для Дашборда (чтобы цифры не слипались) */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stat-box {
+  background: var(--card);
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+}
+
+.stat-box .val {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1.2;
+}
+
+.stat-box .lab {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+@media(min-width: 600px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
