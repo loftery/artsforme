@@ -91,9 +91,14 @@ function getRankInfo() {
   return { current, next, percent };
 }
 
-// ВОТ ЭТИ ДВЕ ФУНКЦИИ ДОЛЖНЫ БЫТЬ ОБЪЯВЛЕНЫ ЗДЕСЬ:
 function isLessonDone(id) { return !!state.progress[id]; }
 function isTaskDone(id) { return state.tasks[id] === 'done'; }
+
+function calcLevel(){
+  const done = Object.keys(state.progress).length;
+  const total = window.APP_DATA ? window.APP_DATA.PROGRAM.reduce((s,l)=>s+l.lessons.length,0) : 20;
+  return { done, total, percent: total ? Math.round(done/total*100) : 0 };
+}
 
 function addXP(amount, reason){
   state.xp += amount;
@@ -170,8 +175,8 @@ async function boot(){
 }
 
 window.APP = {
-  state, boot, addXP, toggleLesson, toggleTask,
-  isLessonDone, isTaskDone, // <--- ТЕПЕРЬ ОНИ ЗДЕСЬ И РАБОТАЮТ
+  state, boot, addXP, toggleLesson, toggleTask, calcLevel,
+  isLessonDone, isTaskDone,
   dbPut, dbGet, dbDel, dbAll, store,
   showToast, formatDate, CAT_LABEL, saveState,
   addGalleryItem, delGalleryItem, getRankInfo, RANKS, ACHIEVEMENTS
