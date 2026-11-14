@@ -1,6 +1,3 @@
-// ============================================
-// ХРАНИЛИЩЕ (IndexedDB + LocalStorage)
-// ============================================
 const DB_NAME = 'ArtistPathDB';
 let db = null;
 
@@ -25,9 +22,6 @@ const store = {
   set(key, val){ localStorage.setItem('ap_'+key, JSON.stringify(val)); }
 };
 
-// ============================================
-// РАНГИ И ДОСТИЖЕНИЯ
-// ============================================
 const RANKS = [
   { minXP: 0, title: "Новичок", icon: "🌱" },
   { minXP: 50, title: "Ученик", icon: "✏️" },
@@ -97,9 +91,10 @@ function getRankInfo() {
   return { current, next, percent };
 }
 
-// ============================================
-// ЛОГИКА XP И ДЕЙСТВИЙ
-// ============================================
+// ВОТ ЭТИ ДВЕ ФУНКЦИИ ДОЛЖНЫ БЫТЬ ОБЪЯВЛЕНЫ ЗДЕСЬ:
+function isLessonDone(id) { return !!state.progress[id]; }
+function isTaskDone(id) { return state.tasks[id] === 'done'; }
+
 function addXP(amount, reason){
   state.xp += amount;
   saveState();
@@ -151,9 +146,6 @@ function delGalleryItem(id) {
   saveState();
 }
 
-// ============================================
-// UI УТИЛИТЫ
-// ============================================
 function showToast(msg){
   let t = document.getElementById('toast');
   if(!t){ t = document.createElement('div'); t.id = 'toast'; t.className = 'toast'; document.body.appendChild(t); }
@@ -179,7 +171,7 @@ async function boot(){
 
 window.APP = {
   state, boot, addXP, toggleLesson, toggleTask,
-  isLessonDone, isTaskDone, // <--- ЭТИ ДВЕ ФУНКЦИИ ДОЛЖНЫ БЫТЬ
+  isLessonDone, isTaskDone, // <--- ТЕПЕРЬ ОНИ ЗДЕСЬ И РАБОТАЮТ
   dbPut, dbGet, dbDel, dbAll, store,
   showToast, formatDate, CAT_LABEL, saveState,
   addGalleryItem, delGalleryItem, getRankInfo, RANKS, ACHIEVEMENTS
