@@ -1,5 +1,5 @@
 // ============================================
-// ХРАНИЛИЩЕ
+// ХРАНИЛИЩЕ (IndexedDB + LocalStorage)
 // ============================================
 const DB_NAME = 'ArtistPathDB';
 let db = null;
@@ -53,7 +53,7 @@ const state = {
   tasks: store.get('tasks', {}),
   streak: store.get('streak', {last:null, count:0}),
   xp: store.get('xp', 0),
-  meta: store.get('meta', []), // Рисунки
+  meta: store.get('meta', []),
   unlockedAch: store.get('achievements', []),
   theme: localStorage.getItem('artist_theme') || 'default'
 };
@@ -67,7 +67,6 @@ function saveState() {
   store.set('achievements', state.unlockedAch);
 }
 
-// Проверка наград
 function checkAchievements() {
   let newUnlocked = false;
   ACHIEVEMENTS.forEach(ach => {
@@ -80,7 +79,6 @@ function checkAchievements() {
   if (newUnlocked) saveState();
 }
 
-// Получить текущий и следующий ранг
 function getRankInfo() {
   let current = RANKS[0];
   let next = RANKS[1];
@@ -100,7 +98,7 @@ function getRankInfo() {
 }
 
 // ============================================
-// ЛОГИКА
+// ЛОГИКА XP И ДЕЙСТВИЙ
 // ============================================
 function addXP(amount, reason){
   state.xp += amount;
