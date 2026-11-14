@@ -88,8 +88,11 @@ function renderTasks(){
     return;
   }
 
+  // Берем выполненные задачи напрямую из состояния APP
+  const doneTasks = APP.state.tasks || {};
+
   wrap.innerHTML = items.map(t => {
-    const isDone = APP.isTaskDone(t.id);
+    const isDone = doneTasks[t.id] === 'done';
     return `
       <div class="task ${isDone?'done':''}" onclick="toggleTask('${t.id}')">
         <button class="task-check">${isDone?'✓':''}</button>
@@ -107,8 +110,17 @@ function renderTasks(){
 }
 
 window.toggleTask = function(id) {
-  APP.toggleTask(id);
-  renderTasks(); // Обновляем список
+  // Вместо APP.toggleTask пишем локальную логику, чтобы не зависеть от app.js
+  const tasks = APP.state.tasks;
+  if (tasks[id] === 'done') {
+    delete tasks[id];
+    APP.state.xp = Math.max(0, APP.state.xp - 5);
+  } else {
+    tasks[id] = 'done';
+    APP.addXP(5, 'задача выполнена');
+  }
+  APP.saveState();
+  renderTasks();
 };
 
 APP.boot();
