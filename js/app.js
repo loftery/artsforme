@@ -179,7 +179,7 @@ async function boot(){
 
 window.APP = {
   state, boot, addXP, toggleLesson, toggleTask,
-  isLessonDone, isTaskDone, // <--- ДОБАВИТЬ ВОТ СЮДА
+  isLessonDone, isTaskDone, // <--- ЭТИ ДВЕ ФУНКЦИИ ДОЛЖНЫ БЫТЬ
   dbPut, dbGet, dbDel, dbAll, store,
   showToast, formatDate, CAT_LABEL, saveState,
   addGalleryItem, delGalleryItem, getRankInfo, RANKS, ACHIEVEMENTS
