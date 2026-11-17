@@ -51,6 +51,14 @@
 .reference-image small{font-size:11px;color:var(--muted)}
 .reference-image a{font-size:11px;color:var(--accent2);text-decoration:underline}
 @media(max-width:600px){.reference-image{align-items:flex-start}.reference-image img{width:88px;height:88px;flex-basis:88px}.lesson-detail .step-check input,.lesson-detail .self-check input{width:18px;height:18px}}
+
+.light-demo{margin:14px 0;padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.light-demo h5{margin:0 0 5px;color:var(--accent2);font-size:13px}
+.light-demo>p{margin:4px 0 8px;font-size:12px;color:var(--muted)}
+.light-demo svg{display:block;width:100%;max-height:190px;margin:5px auto}
+.light-demo-control{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--text)}
+.light-demo-control input{flex:1;min-width:0;accent-color:var(--accent)}
+.light-demo .light-demo-output{margin:6px 0 0;color:var(--accent2);font-size:12px}
 </style>
 </head>
 <body>
@@ -114,6 +122,30 @@ const REFS={
 function referenceMarkup(id){const r=REFS[id];return r?'<div class="reference-image"><img src="'+r.src+'" alt="'+esc(r.alt)+'" loading="lazy" decoding="async"><div><strong>Реальный референс</strong><small>'+esc(r.credit)+'</small><a href="'+r.url+'" target="_blank" rel="noopener noreferrer">Источник и условия использования</a></div></div>':'';}
 function lessonVisualMarkup(id){const v=VIS[id];return v?'<figure class="lesson-visual"><figcaption>'+esc(v[0])+'</figcaption>'+v[2]+'<p>'+esc(v[1])+'</p>'+referenceMarkup(id)+'</figure>':referenceMarkup(id);}
 
+function lessonDemoMarkup(id){
+ if(id!=="2-1")return "";
+ return '<section class="light-demo"><h5>Мини-эксперимент: двигай источник света</h5><p>Поменяй направление света и посмотри, как перемещаются блик и падающая тень.</p><svg viewBox="0 0 360 170" role="img" aria-label="Интерактивная схема сферы и падающей тени"><path class="vg" d="M25 135H335"/><ellipse id="demo-shadow" class="vct" cx="205" cy="135" rx="62" ry="11"/><circle class="vs" cx="160" cy="85" r="35"/><path id="demo-shadow-side" class="vsh" d="M160 50A35 35 0 0 1 160 120Q194 85 160 50Z"/><circle id="demo-highlight" class="vhi" cx="148" cy="73" r="8"/><line id="demo-ray" class="vr" x1="86" y1="25" x2="160" y2="85"/><circle id="demo-source" class="vp" cx="86" cy="25" r="7"/><text x="18" y="18">Источник света</text><text x="235" y="90">Тень</text></svg><label class="light-demo-control" for="light-angle">Направление света <input id="light-angle" type="range" min="0" max="359" value="225" oninput="moveLightDemo(this.value)"></label><p class="light-demo-output" id="light-angle-label" aria-live="polite">Свет сверху слева</p></section>';
+}
+window.moveLightDemo=function(value){
+ const angle=Number(value)*Math.PI/180, degrees=Number(value);
+ const cx=160,cy=85,cos=Math.cos(angle),sin=Math.sin(angle);
+ const sourceX=cx+cos*105,sourceY=cy+sin*70;
+ const highlightX=cx+cos*18,highlightY=cy+sin*18;
+ const shadowX=cx-cos*65;
+ const source=document.getElementById('demo-source'),ray=document.getElementById('demo-ray');
+ const highlight=document.getElementById('demo-highlight'),shadow=document.getElementById('demo-shadow');
+ const shadowSide=document.getElementById('demo-shadow-side');
+ if(!source||!ray||!highlight||!shadow||!shadowSide)return;
+ source.setAttribute('cx',sourceX);source.setAttribute('cy',sourceY);
+ ray.setAttribute('x1',sourceX);ray.setAttribute('y1',sourceY);
+ highlight.setAttribute('cx',highlightX);highlight.setAttribute('cy',highlightY);
+ shadow.setAttribute('cx',shadowX);
+ shadowSide.setAttribute('transform','rotate('+(degrees+180)+' '+cx+' '+cy+')');
+ const horizontal=Math.abs(cos)<.25?'по центру':cos<0?'слева':'справа';
+ const vertical=Math.abs(sin)<.25?'на уровне объекта':sin<0?'сверху':'снизу';
+ const label=document.getElementById('light-angle-label');
+ if(label)label.textContent='Источник света: '+vertical+', '+horizontal+'. Тень уходит в противоположную сторону.';
+};
 function lessonMarkup(lesson){
  const data=window.LESSON_CONTENT?.[lesson.id];
  const done=!!APP.state.progress[lesson.id];
@@ -124,7 +156,7 @@ function lessonMarkup(lesson){
  '<div class="lesson-body" role="button" tabindex="0" onclick="toggleDetails(\''+lesson.id+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();toggleDetails(\''+lesson.id+'\')}"><div class="lesson-status">'+(done?'Завершён':'Урок · '+lesson.id)+'</div><h4>'+esc(lesson.title)+'</h4><div class="games">Игровые ориентиры: '+esc(games)+'</div></div>'+
  '<button class="lesson-open" aria-expanded="false" onclick="toggleDetails(\''+lesson.id+'\')">Открыть урок</button>'+
  '<div class="lesson-detail">'+
- '<section class="lesson-section lesson-theory"><h5>Что ты изучишь</h5><p>'+esc(data.goal)+'</p><h5>Теория</h5><p>'+esc(data.theory)+'</p></section>'+lessonVisualMarkup(lesson.id)+
+ '<section class="lesson-section lesson-theory"><h5>Что ты изучишь</h5><p>'+esc(data.goal)+'</p><h5>Теория</h5><p>'+esc(data.theory)+'</p></section>'+lessonVisualMarkup(lesson.id)+lessonDemoMarkup(lesson.id)+
  '<section class="lesson-section"><h5>Основные понятия</h5><div class="lesson-concepts">'+data.concepts.map(c=>'<div class="concept"><strong>'+esc(c[0])+'</strong><span>'+esc(c[1])+'</span></div>').join('')+'</div></section>'+
  '<section class="lesson-section"><h5>Порядок работы · отмечай шаги по ходу</h5>'+list(data.steps,true,true)+'</section>'+
  '<section class="lesson-section"><h5>На что обратить внимание</h5>'+list(data.mistakes)+'</section>'+
@@ -144,6 +176,7 @@ function renderLevels(){
  const total=APP_DATA.PROGRAM.reduce((n,l)=>n+l.lessons.length,0),done=Object.keys(APP.state.progress).filter(id=>APP_DATA.PROGRAM.some(l=>l.lessons.some(x=>x.id===id))).length;
  document.getElementById('courseSummaryText').textContent=done+' из '+total+' уроков завершено · '+Math.round(done/total*100)+'% курса';
  document.getElementById('courseProgress').style.width=(done/total*100)+'%';
+ const lightSlider=document.getElementById('light-angle');if(lightSlider)window.moveLightDemo(lightSlider.value);
 }
 window.toggleDetails=function(id){const el=document.getElementById('lesson-'+id);if(!el)return;el.classList.toggle('expanded');const b=el.querySelector('.lesson-open');if(b){const open=el.classList.contains('expanded');b.textContent=open?'Свернуть':'Открыть урок';b.setAttribute('aria-expanded',String(open));}};
 window.toggleLesson=function(id){APP.toggleLesson(id);renderLevels();const el=document.getElementById('lesson-'+id);if(el){el.classList.add('expanded');const b=el.querySelector('.lesson-open');if(b){b.textContent='Свернуть';b.setAttribute('aria-expanded','true');}}};
