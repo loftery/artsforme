@@ -411,3 +411,60 @@ body[data-theme="oneshot"] .course-intro p{color:var(--muted)}
  .lesson-section{padding-bottom:12px;margin-bottom:12px}
  .lesson-section p,.lesson-section li{font-size:14px;line-height:1.7}
 }
+
+
+/* The two light palettes must also replace the legacy dark component surfaces. */
+body[data-theme="hollow"] .card,
+body[data-theme="hollow"] .stat-box,
+body[data-theme="hollow"] .level-card,
+body[data-theme="hollow"] .task,
+body[data-theme="hollow"] .gallery-card,
+body[data-theme="hollow"] .theme-option,
+body[data-theme="hollow"] .rank-step,
+body[data-theme="oneshot"] .card,
+body[data-theme="oneshot"] .stat-box,
+body[data-theme="oneshot"] .level-card,
+body[data-theme="oneshot"] .task,
+body[data-theme="oneshot"] .gallery-card,
+body[data-theme="oneshot"] .theme-option,
+body[data-theme="oneshot"] .rank-step{
+ background:var(--card);color:var(--text);border-color:var(--line);
+}
+body[data-theme="hollow"] .hero-card,
+body[data-theme="hollow"] .sidebar,
+body[data-theme="hollow"] .modal,
+body[data-theme="oneshot"] .hero-card,
+body[data-theme="oneshot"] .sidebar,
+body[data-theme="oneshot"] .modal{
+ background:var(--card);color:var(--text);border-color:var(--line);
+}
+body[data-theme="hollow"] .sidebar a,
+body[data-theme="oneshot"] .sidebar a{color:var(--text)}
+body[data-theme="hollow"] .sidebar a:hover,
+body[data-theme="hollow"] .sidebar a.active,
+body[data-theme="oneshot"] .sidebar a:hover,
+body[data-theme="oneshot"] .sidebar a.active{color:#fff;background:var(--accent)}
+body[data-theme="hollow"] .field input,
+body[data-theme="hollow"] .field select,
+body[data-theme="hollow"] .field textarea,
+body[data-theme="oneshot"] .field input,
+body[data-theme="oneshot"] .field select,
+body[data-theme="oneshot"] .field textarea{background:var(--card);color:var(--text);border-color:var(--line)}
+body[data-theme="hollow"] .rank-step.reached,
+body[data-theme="oneshot"] .rank-step.reached{background:var(--accent-soft);border-color:var(--accent)}
+body[data-theme="hollow"] .empty,
+body[data-theme="oneshot"] .empty{background:var(--card);color:var(--text);border-color:var(--line)}
+body[data-theme="hollow"] .hero-copy p,
+body[data-theme="hollow"] .hero-xp span,
+body[data-theme="hollow"] .rank-step-copy small,
+body[data-theme="hollow"] .section-note,
+body[data-theme="hollow"] .sub,
+body[data-theme="oneshot"] .hero-copy p,
+body[data-theme="oneshot"] .hero-xp span,
+body[data-theme="oneshot"] .rank-step-copy small,
+body[data-theme="oneshot"] .section-note,
+body[data-theme="oneshot"] .sub{color:var(--muted)}
+body[data-theme="hollow"] .hero-xp strong,
+body[data-theme="hollow"] .eyebrow,
+body[data-theme="oneshot"] .hero-xp strong,
+body[data-theme="oneshot"] .eyebrow{color:var(--accent2)}
