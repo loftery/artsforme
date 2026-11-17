@@ -195,9 +195,6 @@ async function boot(){
   checkAchievements();
   if(typeof onReady === 'function') onReady();
 }
-function isLessonDone(id) { return !!state.progress[id]; }
-function isTaskDone(id) { return state.tasks[id] === 'done'; }
-
 window.APP = {
   state, boot, addXP, toggleLesson, toggleTask, calcLevel,
   isLessonDone, isTaskDone,
