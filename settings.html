@@ -13,13 +13,13 @@
 </div>
 
 <nav class="sidebar">
-  <a href="index.html"><span class="icon icon-home"></span> Дашборд</a>
-  <a href="learn.html"><span class="icon icon-book"></span> Обучение</a>
-  <a href="tasks.html"><span class="icon icon-task"></span> Задачи</a>
-  <a href="gallery.html"><span class="icon icon-image"></span> Галерея</a>
-  <a href="styles.html"><span class="icon icon-palette"></span> Стили</a>
-  <a href="ideas.html"><span class="icon icon-bulb"></span> Идеи</a>
-  <a href="settings.html"><span class="icon icon-settings"></span> Профиль</a>
+  <a href="index.html">⌂ Дашборд</a>
+  <a href="learn.html">▤ Обучение</a>
+  <a href="tasks.html">✓ Задачи</a>
+  <a href="gallery.html">▧ Галерея</a>
+  <a href="styles.html">◉ Стили</a>
+  <a href="ideas.html">✧ Идеи</a>
+  <a href="settings.html" class="active">⚙ Профиль</a>
 </nav>
 
 <div class="main-wrap">
@@ -38,6 +38,10 @@
       <p style="font-size:12px; color:var(--muted);" id="nextRankText">До следующего ранга: 50 XP</p>
     </div>
 
+    <h3>Путь рангов</h3>
+    <p class="section-note">Следующие ступени открываются за накопленный опыт. Прогресс и награды хранятся на этом устройстве.</p>
+    <div id="rankRoad" class="rank-road"></div>
+
     <!-- Достижения -->
     <h3>Награды</h3>
     <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); gap:10px; margin-bottom:20px;" id="achGrid"></div>
@@ -55,11 +59,11 @@
 </div>
 
 <nav class="bottom-nav">
-  <a href="index.html"><span class="icon icon-home"></span>Главная</a>
-  <a href="learn.html"><span class="icon icon-book"></span>Уроки</a>
-  <a href="tasks.html"><span class="icon icon-task"></span>Задачи</a>
-  <a href="gallery.html"><span class="icon icon-image"></span>Галерея</a>
-  <a href="settings.html"><span class="icon icon-settings"></span>Профиль</a>
+  <a href="index.html">⌂Главная</a>
+  <a href="learn.html">▤Уроки</a>
+  <a href="tasks.html">✓Задачи</a>
+  <a href="gallery.html">▧Галерея</a>
+  <a href="settings.html" class="active">⚙Профиль</a>
 </nav>
 
 <script src="js/data.js"></script>
@@ -70,6 +74,7 @@ function onReady(){
   updateProfileUI();
   renderAchievements();
   renderThemes();
+  renderRankRoad();
   
   document.getElementById('resetBtn').onclick = () => {
     if(!confirm('Сбросить весь прогресс? Это удалит все награды и XP, но рисунки останутся.')) return;
@@ -114,47 +119,26 @@ function renderAchievements() {
 function renderThemes() {
   const grid = document.getElementById('themeGrid');
   const current = APP.state.theme;
-  
-  const lockedThemes = {
-    'ultrakill': 800,
-    'undertale': 150,
-    'deltarune': 150,
-    'silksong': 500,
-    'pressure': 300
-  };
-
+  const lockedThemes = { deltarune:150, pressure:300, silksong:500, ultrakill:800, undertale:1200 };
   grid.innerHTML = Object.entries(APP_THEMES.THEMES).map(([id,t])=>{
-    const isLocked = lockedThemes[id] && APP.state.xp < lockedThemes[id];
-    const isActive = id === current;
-    
-    // Цвета для кнопки берем из самой темы, чтобы текст всегда читался
-    const bgColor = t.vars['--card'];
-    const textColor = t.vars['--text'];
-    const borderColor = isActive ? t.vars['--accent'] : 'var(--line)';
-
-    if (isLocked) {
-      return `
-        <button class="btn" style="background:var(--bg); color:var(--muted); border:2px dashed var(--line); opacity:0.6; cursor:not-allowed; padding:12px 8px; flex-direction:column; gap:4px;" onclick="alert('Нужно ${lockedThemes[id]} XP для разблокировки')">
-          <span style="font-size:14px;">🔒 ${t.name}</span>
-          <span style="font-size:10px; font-weight:normal;">${lockedThemes[id]} XP</span>
-        </button>
-      `;
-    }
-    
-    return `
-      <button class="btn" style="background:${bgColor}; color:${textColor}; border:2px solid ${borderColor}; padding:12px 8px; flex-direction:column; gap:4px; box-shadow: ${isActive ? '0 4px 12px '+t.vars['--accent-soft'] : 'none'}" onclick="changeTheme('${id}')">
-        <span style="font-size:14px;">${t.name}</span>
-        ${isActive ? '<span style="font-size:10px; opacity:0.7;">Активна</span>' : ''}
-      </button>
-    `;
+    const need = lockedThemes[id] || 0, isLocked = APP.state.xp < need, isActive = id === current;
+    const swatches = [t.vars['--bg'],t.vars['--accent'],t.vars['--accent2']].map(c=>`<i class="theme-swatch" style="background:${c}"></i>`).join('');
+    if(isLocked) return `<div class="theme-option locked" aria-label="${t.name}: закрыта до ${need} XP"><div class="theme-preview" style="background:${t.vars['--card']};color:${t.vars['--text']};border-color:${t.vars['--line']}">${swatches}<span>🔒</span></div><strong>${t.name}</strong><small>Откроется на ${need} XP</small><div class="mini-progress"><i style="width:${Math.min(100,APP.state.xp/need*100)}%"></i></div></div>`;
+    return `<button class="theme-option ${isActive?'selected':''}" style="--preview-bg:${t.vars['--card']};--preview-text:${t.vars['--text']};--preview-line:${t.vars['--line']}" onclick="changeTheme('${id}')"><div class="theme-preview">${swatches}<span>${isActive?'✓':'✦'}</span></div><strong>${t.name}</strong><small>${isActive?'Активная тема':'Нажми, чтобы применить'}</small></button>`;
   }).join('');
 }
-
+function renderRankRoad() {
+  document.getElementById('rankRoad').innerHTML = APP.RANKS.map(r=>{
+    const reached=APP.state.xp>=r.minXP;
+    return `<div class="rank-step ${reached?'reached':''}"><div class="rank-step-icon">${reached?r.icon:'🔒'}</div><div class="rank-step-copy"><strong>${r.title}</strong><small>${r.minXP} XP · ${reached?'получен':'ещё не открыт'}</small></div>${reached?'<span class="rank-check">✓</span>':''}</div>`;
+  }).join('');
+}
 window.changeTheme = function(id) {
   APP.state.theme = id;
   APP_THEMES.applyTheme(id);
   localStorage.setItem('artist_theme', id);
   renderThemes();
+  renderRankRoad();
 };
 
 APP.boot();
