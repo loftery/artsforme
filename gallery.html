@@ -181,6 +181,7 @@ async function renderGallery(){
   wrap.replaceChildren();
   document.getElementById('emptyWrap').style.display = items.length ? 'none' : 'block';
 
+  let rendered = 0;
   for(const m of items){
     const rec = await APP.dbGet(m.id);
     if (!rec) continue;
@@ -232,6 +233,14 @@ async function renderGallery(){
       await renderGallery();
     });
     wrap.appendChild(card);
+    rendered++;
+  }
+  if(!rendered){
+    document.getElementById('emptyWrap').style.display = 'block';
+    document.getElementById('emptyWrap').querySelector('h3').textContent = items.length ? 'Не удалось открыть рисунки' : 'Пока пусто';
+    document.getElementById('emptyWrap').querySelector('p').textContent = items.length ? 'Возможно, локальные файлы были очищены браузером.' : 'Нажми «+ Добавить»';
+  } else {
+    document.getElementById('emptyWrap').style.display = 'none';
   }
 }
 
