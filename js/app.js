@@ -23,23 +23,23 @@ const store = {
 };
 
 const RANKS = [
-  { minXP: 0, title: "Новичок", icon: "🌱" },
-  { minXP: 50, title: "Ученик", icon: "✏️" },
-  { minXP: 150, title: "Начинающий", icon: "🎨" },
-  { minXP: 300, title: "Практик", icon: "🖌️" },
-  { minXP: 500, title: "Художник", icon: "🖼️" },
-  { minXP: 800, title: "Мастер", icon: "🏆" },
-  { minXP: 1200, title: "Гуру", icon: "🔥" },
-  { minXP: 2000, title: "Легенда", icon: "👑" }
+  { minXP: 0, title: "Новичок", icon: "◇" },
+  { minXP: 50, title: "Ученик", icon: "✎" },
+  { minXP: 150, title: "Начинающий", icon: "◈" },
+  { minXP: 300, title: "Практик", icon: "⌁" },
+  { minXP: 500, title: "Художник", icon: "▧" },
+  { minXP: 800, title: "Мастер", icon: "✧" },
+  { minXP: 1200, title: "Гуру", icon: "◆" },
+  { minXP: 2000, title: "Легенда", icon: "♛" }
 ];
 
 const ACHIEVEMENTS = [
-  { id: "first_draw", title: "Первый шаг", desc: "Загрузи свой первый рисунок", icon: "🌟", check: (s) => s.meta.length >= 1 },
-  { id: "ten_draw", title: "Коллекционер", desc: "Загрузи 10 рисунков", icon: "📚", check: (s) => s.meta.length >= 10 },
-  { id: "first_lesson", title: "В учении — свет", desc: "Пройди первый урок", icon: "💡", check: (s) => Object.keys(s.progress).length >= 1 },
-  { id: "five_lessons", title: "Способный", desc: "Пройди 5 уроков", icon: "🧠", check: (s) => Object.keys(s.progress).length >= 5 },
-  { id: "streak_3", title: "В ударе", desc: "Занимайся 3 дня подряд", icon: "🔥", check: (s) => s.streak.count >= 3 },
-  { id: "streak_7", title: "Марафонец", desc: "Занимайся 7 дней подряд", icon: "🚀", check: (s) => s.streak.count >= 7 }
+  { id: "first_draw", title: "Первый шаг", desc: "Загрузи свой первый рисунок", icon: "✦", check: (s) => s.meta.length >= 1 },
+  { id: "ten_draw", title: "Коллекционер", desc: "Загрузи 10 рисунков", icon: "▤", check: (s) => s.meta.length >= 10 },
+  { id: "first_lesson", title: "В учении — свет", desc: "Пройди первый урок", icon: "◉", check: (s) => Object.keys(s.progress).length >= 1 },
+  { id: "five_lessons", title: "Способный", desc: "Пройди 5 уроков", icon: "◎", check: (s) => Object.keys(s.progress).length >= 5 },
+  { id: "streak_3", title: "В ударе", desc: "Занимайся 3 дня подряд", icon: "◆", check: (s) => s.streak.count >= 3 },
+  { id: "streak_7", title: "Марафонец", desc: "Занимайся 7 дней подряд", icon: "➤", check: (s) => s.streak.count >= 7 }
 ];
 
 const state = {
@@ -67,7 +67,7 @@ function checkAchievements() {
     if (!state.unlockedAch.includes(ach.id) && ach.check(state)) {
       state.unlockedAch.push(ach.id);
       newUnlocked = true;
-      showToast(`🏆 Награда: ${ach.title}!`);
+      showToast(`✦ Награда: ${ach.title}!`);
     }
   });
   if (newUnlocked) saveState();
