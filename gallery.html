@@ -57,7 +57,7 @@
     <h2>Добавить рисунок</h2>
     <div class="field">
       <label>Файл</label>
-      <input type="file" id="fileInput" accept="image/*">
+      <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp,image/gif">
     </div>
     <div id="preview" style="margin-bottom:14px"></div>
     <div class="field">
@@ -125,6 +125,9 @@ function bindEvents(){
   document.getElementById('fileInput').onchange = e => {
     pendingFile = e.target.files[0];
     if(!pendingFile) return;
+    const allowed = ['image/png','image/jpeg','image/webp','image/gif'];
+    if(!allowed.includes(pendingFile.type)) { alert('Поддерживаются PNG, JPG, WEBP и GIF.'); e.target.value=''; pendingFile=null; return; }
+    if(pendingFile.size > 8 * 1024 * 1024) { alert('Файл слишком большой. Максимальный размер — 8 МБ.'); e.target.value=''; pendingFile=null; return; }
     const r = new FileReader();
     r.onload = ev => {
       document.getElementById('preview').innerHTML = `<img src="${ev.target.result}" style="max-width:100%; max-height:160px; border-radius:8px; object-fit:contain;">`;
@@ -160,6 +163,7 @@ async function saveImage(){
     document.getElementById('titleInput').value = '';
     document.getElementById('notesInput').value = '';
     document.getElementById('preview').innerHTML = '';
+    document.getElementById('fileInput').value = '';
     pendingFile = null;
     
     renderGallery();
@@ -169,53 +173,64 @@ async function saveImage(){
 
 async function renderGallery(){
   const meta = APP.state.meta;
-  let list = meta;
-  if(currentCat !== 'all') list = list.filter(m=>m.cat === currentCat);
-  list.sort((a,b)=>b.created - a.created);
+  let items = meta.slice();
+  if(currentCat !== 'all') items = items.filter(m=>m.cat === currentCat);
+  items.sort((a,b)=>b.created - a.created);
 
   const wrap = document.getElementById('galleryWrap');
-  wrap.innerHTML = '';
-  document.getElementById('emptyWrap').style.display = list.length ? 'none' : 'block';
+  wrap.replaceChildren();
+  document.getElementById('emptyWrap').style.display = items.length ? 'none' : 'block';
 
-  for(const m of list){
+  for(const m of items){
     const rec = await APP.dbGet(m.id);
     if (!rec) continue;
 
-    const card = document.createElement('div');
+    const card = document.createElement('article');
     card.className = 'gallery-card';
-    card.innerHTML = `
-      <button class="del">✕</button>
-      <img src="${rec.data}" alt="">
-      <div class="meta">
-        <span class="cat-tag cat-${m.cat}">${APP.CAT_LABEL[m.cat]}</span>
-        <div class="name">${m.title}</div>
-      </div>
-    `;
-    
-    card.onclick = (e) => {
-      if(e.target.classList.contains('del')) return;
-      
-      // Заполняем модалку
-      document.getElementById('viewTitle').textContent = m.title;
-      document.getElementById('viewImg').src = rec.data;
-      
+
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'del';
+    del.textContent = '×';
+    del.setAttribute('aria-label', 'Удалить рисунок ' + (m.title || 'Без названия'));
+
+    const image = document.createElement('img');
+    image.src = rec.data;
+    image.alt = m.title || 'Сохранённый рисунок';
+    image.loading = 'lazy';
+    image.decoding = 'async';
+
+    const info = document.createElement('div');
+    info.className = 'meta';
+    const category = document.createElement('span');
+    category.className = 'cat-tag cat-' + (APP.CAT_LABEL[m.cat] ? m.cat : 'hand');
+    category.textContent = APP.CAT_LABEL[m.cat] || 'От руки';
+    const name = document.createElement('div');
+    name.className = 'name';
+    name.textContent = m.title || 'Без названия';
+    info.append(category, name);
+    card.append(del, image, info);
+
+    card.addEventListener('click', () => {
+      document.getElementById('viewTitle').textContent = m.title || 'Без названия';
+      const viewImg = document.getElementById('viewImg');
+      viewImg.src = rec.data;
+      viewImg.alt = m.title || 'Сохранённый рисунок';
       const catEl = document.getElementById('viewCat');
-      catEl.textContent = APP.CAT_LABEL[m.cat];
-      catEl.className = `cat-tag cat-${m.cat}`;
-      
+      catEl.textContent = APP.CAT_LABEL[m.cat] || 'От руки';
+      catEl.className = 'cat-tag cat-' + (APP.CAT_LABEL[m.cat] ? m.cat : 'hand');
       document.getElementById('viewDate').textContent = APP.formatDate(m.created);
       document.getElementById('viewInfo').textContent = m.notes || 'Без заметок';
-      
       document.getElementById('viewModal').classList.add('show');
-    };
-    
-    card.querySelector('.del').onclick = async (e) => {
+    });
+
+    del.addEventListener('click', async e => {
       e.stopPropagation();
-      if(!confirm('Удалить?')) return;
+      if(!confirm('Удалить рисунок из галереи?')) return;
       await APP.dbDel(m.id);
       APP.delGalleryItem(m.id);
-      renderGallery();
-    };
+      await renderGallery();
+    });
     wrap.appendChild(card);
   }
 }
