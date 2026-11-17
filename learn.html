@@ -40,8 +40,14 @@
 </head>
 <body>
 <div class="topbar"><div class="brand"><div class="brand-mark">A</div><span>Путь Художника</span></div></div>
-<nav class="sidebar">
-<a href="index.html">⌂ Дашборд</a><a href="learn.html" class="active">▤ Обучение</a><a href="tasks.html">✓ Задачи</a><a href="gallery.html">▧ Галерея</a><a href="styles.html">◉ Стили</a><a href="ideas.html">✧ Идеи</a><a href="settings.html">⚙ Профиль</a>
+<nav class="sidebar" aria-label="Основная навигация">
+  <a href="index.html"><span class="icon icon-home" aria-hidden="true"></span>Дашборд</a>
+  <a href="learn.html"><span class="icon icon-book" aria-hidden="true"></span>Обучение</a>
+  <a href="tasks.html"><span class="icon icon-task" aria-hidden="true"></span>Задачи</a>
+  <a href="gallery.html"><span class="icon icon-image" aria-hidden="true"></span>Галерея</a>
+  <a href="styles.html"><span class="icon icon-palette" aria-hidden="true"></span>Стили</a>
+  <a href="ideas.html"><span class="icon icon-bulb" aria-hidden="true"></span>Идеи</a>
+  <a href="settings.html"><span class="icon icon-settings" aria-hidden="true"></span>Настройки</a>
 </nav>
 <div class="main-wrap"><div class="content">
 <h1>Обучение</h1>
@@ -50,7 +56,13 @@
 <div id="courseSummary" class="card" style="margin-bottom:16px"><strong>Твой путь</strong><div id="courseSummaryText" style="font-size:13px;color:var(--muted);margin-top:5px">Загрузка прогресса…</div><div class="lesson-progress"><span id="courseProgress"></span></div></div>
 <div id="levelsWrap"></div>
 </div></div>
-<nav class="bottom-nav"><a href="index.html">⌂Главная</a><a href="learn.html" class="active">▤Уроки</a><a href="tasks.html">✓Задачи</a><a href="gallery.html">▧Галерея</a><a href="settings.html">⚙Профиль</a></nav>
+<nav class="bottom-nav" aria-label="Быстрая навигация">
+  <a href="index.html"><span class="icon icon-home" aria-hidden="true"></span><span>Главная</span></a>
+  <a href="learn.html"><span class="icon icon-book" aria-hidden="true"></span><span>Уроки</span></a>
+  <a href="tasks.html"><span class="icon icon-task" aria-hidden="true"></span><span>Задачи</span></a>
+  <a href="gallery.html"><span class="icon icon-image" aria-hidden="true"></span><span>Галерея</span></a>
+  <a href="settings.html"><span class="icon icon-settings" aria-hidden="true"></span><span>Профиль</span></a>
+</nav>
 <script src="js/data.js"></script>
 <script src="js/lesson-content.js"></script>
 <script src="js/themes.js"></script>
