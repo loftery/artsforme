@@ -200,3 +200,103 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opa
 .theme-option{width:100%;display:flex;flex-direction:column;gap:5px;text-align:left;padding:9px;border:1px solid var(--line);border-radius:13px;background:rgba(10,17,27,.24);color:var(--text);transition:transform .18s,border-color .18s}.theme-option:not(.locked){cursor:pointer}.theme-option:not(.locked):hover{transform:translateY(-2px);border-color:var(--accent)}.theme-option.selected{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent-soft)}.theme-option strong{font-size:12px}.theme-option small{font-size:10px;color:var(--muted)}.theme-option.locked{opacity:.68;cursor:not-allowed}.theme-preview{height:48px;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:7px;position:relative;border:1px solid var(--preview-line,var(--line));background:var(--preview-bg,var(--card));color:var(--preview-text,var(--text))}.theme-preview span{font-size:16px;margin-left:4px}.theme-swatch{width:13px;height:13px;border-radius:50%;border:1px solid rgba(255,255,255,.28)}.mini-progress{height:3px;background:var(--line);border-radius:8px;overflow:hidden;width:100%}.mini-progress i{display:block;height:100%;background:var(--accent)}
 @media(max-width:600px){.content{padding:18px 14px 30px}.hero-card{grid-template-columns:auto 1fr;padding:17px;gap:10px 13px}.hero-xp{grid-column:1/-1;flex-direction:row;justify-content:space-between;text-align:left;align-items:center}.hero-xp span{max-width:55%;text-align:right}.hero-rank-icon{font-size:34px}.hero-copy h2{font-size:21px}.gallery-card img{height:145px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+
+/* =========================================================
+   ARTISTPATH POLISH — контраст, глубина, микроанимации, mobile
+   ========================================================= */
+:root{
+ --bg:#0d1520;--bg2:#152131;--card:#1b2a3c;--card2:#23354a;
+ --text:#edf2f7;--muted:#aebbc9;--line:#40536a;
+ --accent:#c9ad70;--accent2:#ead7a5;--accent-soft:rgba(201,173,112,.16);
+ --success:#8fc5a6;--danger:#e58a88;
+}
+body{color:var(--text);text-rendering:optimizeLegibility}
+::selection{background:rgba(201,173,112,.32);color:var(--text)}
+a,button,.card,.task,.lesson,.level-card,.gallery-card,.theme-option{ -webkit-tap-highlight-color:transparent}
+button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent2);outline-offset:3px}
+.card,.stat-box,.level-card,.task,.gallery-card,.hero-card,.course-intro{
+ transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease,background .25s ease;
+}
+.card:hover,.stat-box:hover,.task:hover,.gallery-card:hover{box-shadow:0 18px 42px rgba(0,0,0,.3);transform:translateY(-2px)}
+.level-card:hover{box-shadow:0 16px 36px rgba(0,0,0,.24)}
+.btn,.filter-chip,.lesson-open,.lesson-actions button,.lesson-check,.task-check{transition:transform .18s ease,filter .18s ease,background .18s ease,border-color .18s ease,box-shadow .18s ease}
+.btn:active,.filter-chip:active,.lesson-open:active,.lesson-actions button:active{transform:scale(.97)}
+.btn-primary{background:linear-gradient(120deg,#ead7a5,#b89a5e);color:#17202b}
+.btn-primary:hover{box-shadow:0 8px 24px rgba(201,173,112,.24);filter:brightness(1.06)}
+.btn-ghost{color:var(--text);border-color:#53677f}
+.btn-ghost:hover{background:rgba(201,173,112,.1);border-color:var(--accent2)}
+.sidebar a{transition:background .2s,color .2s,transform .2s}
+.sidebar a:hover{transform:translateX(3px)}
+.bottom-nav{min-height:72px;padding:7px 6px calc(7px + env(safe-area-inset-bottom));gap:3px}
+.bottom-nav a{
+ min-width:0;min-height:54px;justify-content:center;gap:4px;padding:7px 3px;
+ color:#b9c5d2;font-size:11px;line-height:1.15;font-weight:700;letter-spacing:.01em;
+ border:1px solid transparent;border-radius:12px;white-space:nowrap;
+}
+.bottom-nav a.active{
+ color:#f0dca9;background:rgba(201,173,112,.12);
+ border-color:rgba(201,173,112,.22);
+}
+.bottom-nav a:active{background:rgba(201,173,112,.2);transform:scale(.96)}
+.bottom-nav .icon{width:22px;height:22px}
+body{padding-bottom:calc(88px + env(safe-area-inset-bottom))}
+.lesson-detail{color:var(--text);background:linear-gradient(145deg,rgba(22,34,49,.98),rgba(14,23,35,.98));border-color:#43566d}
+.lesson-detail p{color:#d9e2eb}
+.lesson-detail ul,.lesson-detail ol{color:#c0ccd8}
+.lesson-detail .concept{background:rgba(201,173,112,.09);border-left-color:var(--accent2)}
+.lesson-detail .concept span{color:#c3ced9}
+.lesson-detail .practice-box{background:rgba(201,173,112,.1);border-color:rgba(201,173,112,.48)}
+.lesson-status{color:#b6c3d0}
+.lesson-open{color:#f0dca9;border-color:#596b80;background:#25364a}
+.lesson-open:hover{background:#31465e;border-color:var(--accent2)}
+.lesson-check{width:30px;height:30px;border-color:#8292a5;color:#17202b}
+.lesson.done .lesson-check{background:#79aa91;border-color:#79aa91}
+.lesson-actions button{min-height:42px}
+.lesson-actions .complete{background:linear-gradient(120deg,#ead7a5,#b89a5e);color:#17202b}
+.lesson-visual{
+ margin:12px 0 16px;padding:14px;border:1px solid rgba(201,173,112,.28);
+ border-radius:14px;background:linear-gradient(145deg,rgba(38,54,73,.85),rgba(17,27,41,.92));
+ overflow:hidden;
+}
+.lesson-visual-title{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:#e4cf98;font-weight:800;margin-bottom:9px}
+.lesson-visual svg{display:block;width:100%;max-height:190px}
+.lesson-visual .visual-caption{font-size:11px;color:#bdc9d6;margin-top:8px;line-height:1.5}
+.lesson-detail h5{color:#ead7a5}
+.course-intro{background:linear-gradient(115deg,rgba(48,65,85,.95),rgba(28,42,60,.95));border-color:rgba(201,173,112,.38)}
+.lesson-progress{height:8px;background:#26384c;border:1px solid #40536a}
+.lesson-progress span{background:linear-gradient(90deg,#9b8558,#ead7a5);box-shadow:0 0 12px rgba(234,215,165,.28)}
+@keyframes riseIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+@keyframes softGlow{0%,100%{box-shadow:0 0 0 rgba(201,173,112,0)}50%{box-shadow:0 0 22px rgba(201,173,112,.12)}}
+.content>*{animation:riseIn .42s ease both}
+.content>*:nth-child(2){animation-delay:.04s}.content>*:nth-child(3){animation-delay:.08s}
+.level-card{animation:riseIn .45s ease both}
+.hero-card:after{content:"";position:absolute;inset:auto -15% -75% 30%;height:150%;background:radial-gradient(ellipse,rgba(201,173,112,.09),transparent 65%);pointer-events:none}
+.hero-rank-icon{animation:softGlow 5s ease-in-out infinite}
+@media(max-width:600px){
+ body{padding-bottom:calc(94px + env(safe-area-inset-bottom))}
+ .bottom-nav{min-height:78px;padding:7px 4px calc(8px + env(safe-area-inset-bottom))}
+ .bottom-nav a{min-height:58px;font-size:10px;padding:7px 1px;gap:5px}
+ .bottom-nav a .icon{width:23px;height:23px}
+ .content{padding:18px 14px calc(26px + env(safe-area-inset-bottom))}
+ .btn{min-height:44px}
+ .filter-chip{min-height:40px;padding:9px 14px}
+ .lesson{gap:9px;padding:11px}
+ .lesson-open{min-height:38px;padding:8px 10px}
+ .lesson-detail{margin:8px 0 0;padding:14px}
+ .lesson-detail p,.lesson-detail li{font-size:14px;line-height:1.65}
+ .lesson-detail h5{font-size:13px}
+ .lesson-visual{padding:10px}
+}
+@media(min-width:900px){body{padding-bottom:20px}}
+/* Contrast tuning for the lighter legacy themes; keep each theme's identity. */
+body[data-theme="roblox"]{--muted:#765b58;--line:#e7c9c3;--card:#fff;--card2:#fff8f6;--text:#291c1b}
+body[data-theme="doors"]{--muted:#c2b68f;--line:#57513a;--card:#292820;--card2:#343126;--text:#fff1c7}
+body[data-theme="pressure"]{--muted:#a7b8cc;--line:#40536d;--card:#1b2a40;--card2:#23354d;--text:#e7f0fb}
+body[data-theme="hollow"]{--muted:#52677c;--line:#c2ceda;--card:#fff;--card2:#f4f7fa;--text:#172638}
+body[data-theme="silksong"]{--muted:#80515a;--line:#e7c1c8;--card:#fffafa;--card2:#fff2f4;--text:#321a21}
+body[data-theme="undertale"]{--muted:#c2c2c2;--line:#555;--card:#292929;--card2:#353535;--text:#fff}
+body[data-theme="deltarune"]{--muted:#c0b2db;--line:#594b78;--card:#302744;--card2:#3a3150;--text:#f2edff}
+body[data-theme="oneshot"]{--muted:#806746;--line:#e5d0ac;--card:#fffdf8;--card2:#fff5e4;--text:#342719}
+body[data-theme="ultrakill"]{--muted:#c29a9f;--line:#594047;--card:#21191c;--card2:#2c2025;--text:#fff0f1}
+@media(prefers-reduced-motion:reduce){.content>*,.level-card,.hero-rank-icon{animation:none!important}}
