@@ -54,6 +54,8 @@ const state = {
   xp: store.get('xp', 0),
   meta: store.get('meta', []),
   unlockedAch: store.get('achievements', []),
+  xpLessonRewards: store.get('xpLessonRewards', Object.keys(store.get('progress', {}))),
+  xpTaskRewards: store.get('xpTaskRewards', Object.keys(store.get('tasks', {})).filter(id => store.get('tasks', {})[id] === 'done')),
   theme: localStorage.getItem('artist_theme') || 'default'
 };
 
@@ -64,6 +66,8 @@ function saveState() {
   store.set('xp', state.xp);
   store.set('meta', state.meta);
   store.set('achievements', state.unlockedAch);
+  store.set('xpLessonRewards', state.xpLessonRewards);
+  store.set('xpTaskRewards', state.xpTaskRewards);
 }
 
 function checkAchievements() {
@@ -130,8 +134,15 @@ function updateStreak(){
 }
 
 function toggleLesson(id){
-  if(state.progress[id]) delete state.progress[id];
-  else { state.progress[id] = true; addXP(10, 'урок пройден'); }
+  if(state.progress[id]) {
+    delete state.progress[id];
+  } else {
+    state.progress[id] = true;
+    if(!state.xpLessonRewards.includes(id)) {
+      state.xpLessonRewards.push(id);
+      addXP(10, 'урок пройден');
+    }
+  }
   saveState();
   checkAchievements();
 }
@@ -139,10 +150,12 @@ function toggleLesson(id){
 function toggleTask(id){
   if(state.tasks[id] === 'done'){
     delete state.tasks[id];
-    state.xp = Math.max(0, state.xp - 5);
   } else {
     state.tasks[id] = 'done';
-    addXP(5, 'задача выполнена');
+    if(!state.xpTaskRewards.includes(id)) {
+      state.xpTaskRewards.push(id);
+      addXP(5, 'задача выполнена');
+    }
   }
   saveState();
   checkAchievements();
