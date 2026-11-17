@@ -13,19 +13,25 @@
 </div>
 
 <nav class="sidebar">
-  <a href="index.html"><span class="icon icon-home"></span> Дашборд</a>
-  <a href="learn.html"><span class="icon icon-book"></span> Обучение</a>
-  <a href="tasks.html"><span class="icon icon-task"></span> Задачи</a>
-  <a href="gallery.html"><span class="icon icon-image"></span> Галерея</a>
-  <a href="styles.html"><span class="icon icon-palette"></span> Стили</a>
-  <a href="ideas.html"><span class="icon icon-bulb"></span> Идеи</a>
-  <a href="settings.html"><span class="icon icon-settings"></span> Настройки</a>
+  <a href="index.html" class="active">⌂ Дашборд</a>
+  <a href="learn.html">▤ Обучение</a>
+  <a href="tasks.html">✓ Задачи</a>
+  <a href="gallery.html">▧ Галерея</a>
+  <a href="styles.html">◉ Стили</a>
+  <a href="ideas.html">✧ Идеи</a>
+  <a href="settings.html">⚙ Настройки</a>
 </nav>
 
 <div class="main-wrap">
   <div class="content">
     <h1>Дашборд</h1>
-    <p class="sub">Твой прогресс, XP и streak</p>
+    <p class="sub">Твой прогресс, XP и streak · личная хроника художника</p>
+    <section class="hero-card" aria-label="Текущий ранг">
+      <div class="hero-orbit">✦</div><div class="hero-rank-icon" id="dashRankIcon">🌱</div>
+      <div class="hero-copy"><span class="eyebrow">ТВОЙ ТЕКУЩИЙ РАНГ</span><h2 id="dashRankTitle">Новичок</h2><p id="dashRankHint">Каждый набросок приближает тебя к следующей ступени.</p></div>
+      <div class="hero-xp"><strong id="dashXp">0 XP</strong><span id="dashNext">До следующего ранга: 50 XP</span></div>
+      <div class="xp-bar hero-bar"><div class="xp-fill" id="dashRankFill" style="width:0%"></div></div>
+    </section>
 
     <div class="stats-grid">
       <div class="stat-box">
@@ -75,11 +81,11 @@
 </div>
 
 <nav class="bottom-nav">
-  <a href="index.html"><span class="icon icon-home"></span>Главная</a>
-  <a href="learn.html"><span class="icon icon-book"></span>Уроки</a>
-  <a href="tasks.html"><span class="icon icon-task"></span>Задачи</a>
-  <a href="gallery.html"><span class="icon icon-image"></span>Галерея</a>
-  <a href="settings.html"><span class="icon icon-settings"></span>Ещё</a>
+  <a href="index.html" class="active">⌂Главная</a>
+  <a href="learn.html">▤Уроки</a>
+  <a href="tasks.html">✓Задачи</a>
+  <a href="gallery.html">▧Галерея</a>
+  <a href="settings.html">⚙Ещё</a>
 </nav>
 
 <script src="js/data.js"></script>
@@ -106,6 +112,13 @@ function onReady(){
   document.getElementById('progressFill').style.width = p.percent + '%';
 
   document.getElementById('tipBox').textContent = TIPS[Math.floor(Math.random()*TIPS.length)];
+  const rank = APP.getRankInfo();
+  document.getElementById('dashRankIcon').textContent = rank.current.icon;
+  document.getElementById('dashRankTitle').textContent = rank.current.title;
+  document.getElementById('dashXp').textContent = s.xp + ' XP';
+  document.getElementById('dashRankFill').style.width = rank.percent + '%';
+  document.getElementById('dashNext').textContent = rank.next ? `До «${rank.next.title}»: ${rank.next.minXP - s.xp} XP` : 'Максимальный ранг достигнут';
+  document.getElementById('dashRankHint').textContent = rank.next ? 'Продолжай выполнять задания и собирать опыт.' : 'Ты достиг вершины. Продолжай творить!';
 }
 
 APP.boot();
