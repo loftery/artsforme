@@ -39,7 +39,12 @@ const ACHIEVEMENTS = [
   { id: "first_lesson", title: "В учении — свет", desc: "Пройди первый урок", icon: "◉", check: (s) => Object.keys(s.progress).length >= 1 },
   { id: "five_lessons", title: "Способный", desc: "Пройди 5 уроков", icon: "◎", check: (s) => Object.keys(s.progress).length >= 5 },
   { id: "streak_3", title: "В ударе", desc: "Занимайся 3 дня подряд", icon: "◆", check: (s) => s.streak.count >= 3 },
-  { id: "streak_7", title: "Марафонец", desc: "Занимайся 7 дней подряд", icon: "➤", check: (s) => s.streak.count >= 7 }
+  { id: "streak_7", title: "Марафонец", desc: "Занимайся 7 дней подряд", icon: "➤", check: (s) => s.streak.count >= 7 },
+  { id: "full_course", title: "Путь пройден", desc: "Заверши все 20 уроков курса", icon: "◆", check: (s) => Object.keys(s.progress).length >= 20 },
+  { id: "first_task", title: "От теории к делу", desc: "Выполни своё первое задание", icon: "✎", check: (s) => Object.values(s.tasks).filter(v => v === "done").length >= 1 },
+  { id: "ten_tasks", title: "Практика решает", desc: "Выполни 10 заданий", icon: "▧", check: (s) => Object.values(s.tasks).filter(v => v === "done").length >= 10 },
+  { id: "five_drawings", title: "Мини-галерея", desc: "Сохрани 5 своих рисунков", icon: "▤", check: (s) => s.meta.length >= 5 },
+  { id: "first_stage", title: "Первая ступень", desc: "Заверши все уроки первого раздела", icon: "◈", check: (s) => ["1-1","1-2","1-3","1-4"].every(id => !!s.progress[id]) }
 ];
 
 const state = {
@@ -62,15 +67,19 @@ function saveState() {
 }
 
 function checkAchievements() {
-  let newUnlocked = false;
+  const newlyUnlocked = [];
   ACHIEVEMENTS.forEach(ach => {
     if (!state.unlockedAch.includes(ach.id) && ach.check(state)) {
       state.unlockedAch.push(ach.id);
-      newUnlocked = true;
-      showToast(`✦ Награда: ${ach.title}!`);
+      newlyUnlocked.push(ach.title);
     }
   });
-  if (newUnlocked) saveState();
+  if (newlyUnlocked.length) {
+    saveState();
+    showToast(newlyUnlocked.length === 1
+      ? `Награда получена: ${newlyUnlocked[0]}`
+      : `Получено достижений: ${newlyUnlocked.length}`);
+  }
 }
 
 function getRankInfo() {
