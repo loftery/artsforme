@@ -82,12 +82,22 @@ function lessonMarkup(lesson){
  const data=window.LESSON_CONTENT?.[lesson.id];
  const done=!!APP.state.progress[lesson.id];
  const games=Array.isArray(lesson.games)?lesson.games.join(' · '):lesson.games;
- if(!data)return '<div class="lesson"><div class="lesson-body"><h4>'+esc(lesson.title)+'</h4><p>Материал готовится.</p></div></div>';
+ if(!data)return '<article class="lesson"><div class="lesson-body"><h4>'+esc(lesson.title)+'</h4><p>Материал готовится.</p></div></article>';
  return '<article class="lesson '+(done?'done':'')+'" id="lesson-'+esc(lesson.id)+'">'+
  '<button class="lesson-check" aria-label="'+(done?'Снять отметку':'Отметить завершённым')+'" onclick="event.stopPropagation();toggleLesson(\''+lesson.id+'\')">'+(done?'✓':'')+'</button>'+
- '<div class="lesson-body" role="button" tabindex="0" onclick="toggleDetails(\''+lesson.id+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();toggleDetails(\''+lesson.id+'\')}"><div class="lesson-status">'+(done?'Завершён':'Урок · '+lesson.id)+'</div><h4>'+esc(lesson.title)+'</h4><div class="games">Примеры: '+esc(games)+'</div></div>'+
- '<button class="lesson-open" onclick="toggleDetails(\''+lesson.id+'\')">Разобрать урок</button>'+
- '<div class="lesson-detail"><h5>Цель урока</h5><p>'+esc(data.goal)+'</p><div class="lesson-visual"><div class="lesson-visual-title">'+esc((window.LESSON_CONTENT_META?.[lesson.id.split('-')[0]]||{}).title||'Визуальный принцип')+'</div>'+visualMarkup(lesson.id)+'<div class="visual-caption">Схема помогает понять принцип. Используй её как ориентир, а не как шаблон для механического копирования.</div></div><h5>Теория: разберём принцип</h5><p>'+esc(data.theory)+'</p><p>'+esc((window.LESSON_CONTENT_META?.[lesson.id.split('-')[0]]||{}).explain||'Сначала наблюдай крупные формы, затем уточняй детали и проверяй результат на простом наброске.')+'</p><h5>Разбор на примере</h5><p>'+esc((window.LESSON_CONTENT_META?.[lesson.id.split('-')[0]]||{}).demo||data.examples)+'</p><div class="concept"><strong>Главное правило</strong><span>'+esc((window.LESSON_CONTENT_META?.[lesson.id.split('-')[0]]||{}).rule||'Проверяй принцип на простом рисунке до добавления деталей.')+'</span></div><h5>Ключевые понятия</h5>'+data.concepts.map(c=>'<div class="concept"><strong>'+esc(c[0])+'</strong><span>'+esc(c[1])+'</span></div>').join('')+'<h5>Пошаговый разбор</h5>'+list(data.steps,true)+'<h5>Типичные ошибки</h5>'+list(data.mistakes)+'<h5>Примеры из игр</h5><p>'+esc(data.examples)+'</p><h5>Практическая работа</h5><div class="practice-box"><p>'+esc(data.practice)+'</p></div><h5>Самопроверка</h5><ul class="checklist">'+data.check.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul><h5>Дополнительное испытание</h5><p>'+esc(data.extra)+'</p><div class="lesson-actions"><button class="complete" onclick="toggleLesson(\''+lesson.id+'\')">'+(done?'Снять отметку о прохождении':'Отметить урок пройденным · +10 XP')+'</button><button onclick="location.href=\'gallery.html\'">Открыть галерею</button></div></div></article>';
+ '<div class="lesson-body" role="button" tabindex="0" onclick="toggleDetails(\''+lesson.id+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();toggleDetails(\''+lesson.id+'\')}"><div class="lesson-status">'+(done?'Завершён':'Урок · '+lesson.id)+'</div><h4>'+esc(lesson.title)+'</h4><div class="games">Игровые ориентиры: '+esc(games)+'</div></div>'+
+ '<button class="lesson-open" aria-expanded="false" onclick="toggleDetails(\''+lesson.id+'\')">Открыть урок</button>'+
+ '<div class="lesson-detail">'+
+ '<section class="lesson-section lesson-theory"><h5>Что ты изучишь</h5><p>'+esc(data.goal)+'</p><h5>Теория</h5><p>'+esc(data.theory)+'</p></section>'+
+ '<section class="lesson-section"><h5>Основные понятия</h5><div class="lesson-concepts">'+data.concepts.map(c=>'<div class="concept"><strong>'+esc(c[0])+'</strong><span>'+esc(c[1])+'</span></div>').join('')+'</div></section>'+
+ '<section class="lesson-section"><h5>Порядок работы</h5>'+list(data.steps,true)+'</section>'+
+ '<section class="lesson-section"><h5>На что обратить внимание</h5>'+list(data.mistakes)+'</section>'+
+ '<section class="lesson-section"><h5>Пример для наблюдения</h5><p>'+esc(data.examples)+'</p></section>'+
+ '<section class="lesson-section lesson-practice"><h5>Практика</h5><p>'+esc(data.practice)+'</p></section>'+
+ '<section class="lesson-section"><h5>Проверь себя</h5><ul class="checklist">'+data.check.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></section>'+
+ '<details class="lesson-extra"><summary>Дополнительное испытание</summary><p>'+esc(data.extra)+'</p></details>'+
+ '<div class="lesson-actions"><button class="complete" onclick="toggleLesson(\''+lesson.id+'\')">'+(done?'Снять отметку о прохождении':'Отметить урок пройденным · +10 XP')+'</button><button onclick="location.href=\'gallery.html\'">Открыть галерею</button></div>'+
+ '</div></article>';
 }
 function renderLevels(){
  const wrap=document.getElementById('levelsWrap');
