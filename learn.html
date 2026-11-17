@@ -101,8 +101,8 @@ function renderLevels(){
  document.getElementById('courseSummaryText').textContent=done+' из '+total+' уроков завершено · '+Math.round(done/total*100)+'% курса';
  document.getElementById('courseProgress').style.width=(done/total*100)+'%';
 }
-window.toggleDetails=function(id){const el=document.getElementById('lesson-'+id);if(!el)return;el.classList.toggle('expanded');const b=el.querySelector('.lesson-open');if(b)b.textContent=el.classList.contains('expanded')?'Свернуть':'Разобрать урок';};
-window.toggleLesson=function(id){APP.toggleLesson(id);renderLevels();const el=document.getElementById('lesson-'+id);if(el)el.classList.add('expanded');};
+window.toggleDetails=function(id){const el=document.getElementById('lesson-'+id);if(!el)return;el.classList.toggle('expanded');const b=el.querySelector('.lesson-open');if(b){const open=el.classList.contains('expanded');b.textContent=open?'Свернуть':'Открыть урок';b.setAttribute('aria-expanded',String(open));}};
+window.toggleLesson=function(id){APP.toggleLesson(id);renderLevels();const el=document.getElementById('lesson-'+id);if(el){el.classList.add('expanded');const b=el.querySelector('.lesson-open');if(b){b.textContent='Свернуть';b.setAttribute('aria-expanded','true');}}};
 function onReady(){renderLevels();}
 APP.boot();
 </script>
