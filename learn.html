@@ -3,90 +3,85 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101722">
 <title>Обучение — Путь Художника</title>
 <link rel="stylesheet" href="css/style.css">
+<style>
+.lesson{align-items:stretch;cursor:default;opacity:1!important;flex-wrap:wrap}
+.lesson.done{border-color:rgba(126,174,145,.55);background:linear-gradient(110deg,rgba(65,111,91,.13),var(--bg))}
+.lesson-check{cursor:pointer;margin:2px 0 0}
+.lesson-body{cursor:pointer}
+.lesson-body h4{font-size:15px}
+.lesson-body .games{margin-top:5px}
+.lesson-open{margin-left:auto;align-self:flex-start;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--accent2);padding:6px 10px;font-size:12px;cursor:pointer}
+.lesson-detail{display:none;flex-basis:100%;margin:4px 0 2px 36px;padding:16px;border:1px solid var(--line);border-radius:12px;background:rgba(8,14,22,.28);line-height:1.65}
+.lesson.expanded .lesson-detail{display:block}
+.lesson-detail h5{margin:15px 0 6px;color:var(--accent2);font-size:13px;letter-spacing:.04em}
+.lesson-detail h5:first-child{margin-top:0}
+.lesson-detail p{font-size:13px;color:var(--text);margin:0 0 8px}
+.lesson-detail ul,.lesson-detail ol{padding-left:20px;margin:5px 0 12px;color:var(--muted);font-size:13px}
+.lesson-detail li{margin:4px 0}
+.lesson-detail .concept{padding:9px 11px;margin:7px 0;background:rgba(183,160,106,.07);border-left:2px solid var(--accent);border-radius:0 8px 8px 0}
+.lesson-detail .concept strong{display:block;color:var(--text);font-size:12px}
+.lesson-detail .concept span{font-size:12px;color:var(--muted)}
+.lesson-detail .practice-box{padding:12px;border:1px solid rgba(183,160,106,.35);border-radius:10px;background:rgba(183,160,106,.07)}
+.lesson-detail .checklist{list-style:none;padding:0}
+.lesson-detail .checklist li:before{content:"□";color:var(--accent2);margin-right:8px;font-size:16px}
+.lesson-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.lesson-actions button{border:1px solid var(--line);border-radius:9px;padding:9px 12px;background:var(--card);color:var(--text);font-weight:700;cursor:pointer}
+.lesson-actions .complete{background:linear-gradient(120deg,#d9c58f,#a58b57);color:#171d27;border:0}
+.lesson-progress{height:5px;background:var(--line);border-radius:9px;overflow:hidden;margin-top:10px}
+.lesson-progress span{display:block;height:100%;background:var(--accent);width:0}
+.course-intro{padding:16px 18px;margin:0 0 16px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(120deg,rgba(183,160,106,.1),rgba(24,36,52,.8))}
+.course-intro p{margin:5px 0 0;color:var(--muted);font-size:13px;line-height:1.6}
+.lesson-status{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+@media(max-width:600px){.lesson-detail{margin-left:0;padding:13px}.lesson-open{font-size:11px;padding:6px 8px}}
+</style>
 </head>
 <body>
-
-<div class="topbar">
-  <div class="brand"><div class="brand-mark">A</div><span>Путь Художника</span></div>
-</div>
-
+<div class="topbar"><div class="brand"><div class="brand-mark">A</div><span>Путь Художника</span></div></div>
 <nav class="sidebar">
-  <a href="index.html">⌂ Дашборд</a>
-  <a href="learn.html" class="active">▤ Обучение</a>
-  <a href="tasks.html">✓ Задачи</a>
-  <a href="gallery.html">▧ Галерея</a>
-  <a href="styles.html">◉ Стили</a>
-  <a href="ideas.html">✧ Идеи</a>
-  <a href="settings.html">⚙ Профиль</a>
+<a href="index.html">⌂ Дашборд</a><a href="learn.html" class="active">▤ Обучение</a><a href="tasks.html">✓ Задачи</a><a href="gallery.html">▧ Галерея</a><a href="styles.html">◉ Стили</a><a href="ideas.html">✧ Идеи</a><a href="settings.html">⚙ Профиль</a>
 </nav>
-
-<div class="main-wrap">
-  <div class="content">
-    <h1>Обучение</h1>
-    <p class="sub">5 уровней, 20 уроков. Не перескакивай.</p>
-    <div id="levelsWrap"></div>
-  </div>
-</div>
-
-<nav class="bottom-nav">
-  <a href="index.html">⌂Главная</a>
-  <a href="learn.html" class="active">▤Уроки</a>
-  <a href="tasks.html">✓Задачи</a>
-  <a href="gallery.html">▧Галерея</a>
-  <a href="settings.html">⚙Профиль</a>
-</nav>
-
+<div class="main-wrap"><div class="content">
+<h1>Обучение</h1>
+<p class="sub">Пять ступеней мастерства · 20 уроков · теория, разбор ошибок и практика</p>
+<div class="course-intro"><strong>Как проходить курс</strong><p>Открой урок, изучи объяснение и примеры, выполни практику на своём холсте. Отмечай урок завершённым, когда сможешь объяснить принцип и применить его без подсказки. Работы можно сохранять в Галерее.</p></div>
+<div id="courseSummary" class="card" style="margin-bottom:16px"><strong>Твой путь</strong><div id="courseSummaryText" style="font-size:13px;color:var(--muted);margin-top:5px">Загрузка прогресса…</div><div class="lesson-progress"><span id="courseProgress"></span></div></div>
+<div id="levelsWrap"></div>
+</div></div>
+<nav class="bottom-nav"><a href="index.html">⌂Главная</a><a href="learn.html" class="active">▤Уроки</a><a href="tasks.html">✓Задачи</a><a href="gallery.html">▧Галерея</a><a href="settings.html">⚙Профиль</a></nav>
 <script src="js/data.js"></script>
+<script src="js/lesson-content.js"></script>
 <script src="js/themes.js"></script>
 <script src="js/app.js"></script>
 <script>
-function onReady(){
-  renderLevels();
+function esc(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function list(items,ordered=false){const tag=ordered?'ol':'ul';return '<'+tag+'>'+items.map(x=>'<li>'+esc(x)+'</li>').join('')+'</'+tag+'>';}
+function lessonMarkup(lesson){
+ const data=window.LESSON_CONTENT?.[lesson.id];
+ const done=!!APP.state.progress[lesson.id];
+ const games=Array.isArray(lesson.games)?lesson.games.join(' · '):lesson.games;
+ if(!data)return '<div class="lesson"><div class="lesson-body"><h4>'+esc(lesson.title)+'</h4><p>Материал готовится.</p></div></div>';
+ return '<article class="lesson '+(done?'done':'')+'" id="lesson-'+esc(lesson.id)+'">'+
+ '<button class="lesson-check" aria-label="'+(done?'Снять отметку':'Отметить завершённым')+'" onclick="event.stopPropagation();toggleLesson(\''+lesson.id+'\')">'+(done?'✓':'')+'</button>'+
+ '<div class="lesson-body" role="button" tabindex="0" onclick="toggleDetails(\''+lesson.id+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();toggleDetails(\''+lesson.id+'\')}"><div class="lesson-status">'+(done?'Завершён':'Урок · '+lesson.id)+'</div><h4>'+esc(lesson.title)+'</h4><div class="games">Примеры: '+esc(games)+'</div></div>'+
+ '<button class="lesson-open" onclick="toggleDetails(\''+lesson.id+'\')">Разобрать урок</button>'+
+ '<div class="lesson-detail"><h5>Цель урока</h5><p>'+esc(data.goal)+'</p><h5>Теория</h5><p>'+esc(data.theory)+'</p><h5>Ключевые понятия</h5>'+data.concepts.map(c=>'<div class="concept"><strong>'+esc(c[0])+'</strong><span>'+esc(c[1])+'</span></div>').join('')+'<h5>Пошаговый разбор</h5>'+list(data.steps,true)+'<h5>Типичные ошибки</h5>'+list(data.mistakes)+'<h5>Примеры из игр</h5><p>'+esc(data.examples)+'</p><h5>Практическая работа</h5><div class="practice-box"><p>'+esc(data.practice)+'</p></div><h5>Самопроверка</h5><ul class="checklist">'+data.check.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul><h5>Дополнительное испытание</h5><p>'+esc(data.extra)+'</p><div class="lesson-actions"><button class="complete" onclick="toggleLesson(\''+lesson.id+'\')">'+(done?'Снять отметку о прохождении':'Отметить урок пройденным · +10 XP')+'</button><button onclick="location.href=\'gallery.html\'">Открыть галерею</button></div></div></article>';
 }
-
 function renderLevels(){
-  const wrap = document.getElementById('levelsWrap');
-  wrap.innerHTML = APP_DATA.PROGRAM.map(level => {
-    const done = level.lessons.filter(l => APP.state.progress[l.id]).length;
-    const total = level.lessons.length;
-    const allDone = done === total;
-
-    return `
-      <div class="level-card">
-        <div class="level-head">
-          <div class="level-num ${allDone?'done':''}">${allDone?'✓':level.id}</div>
-          <div class="level-title">
-            <h3>${level.title}</h3>
-            <p>${done} / ${total} уроков</p>
-          </div>
-        </div>
-        <div class="level-body open">
-          ${level.lessons.map(lesson => {
-            const isDone = !!APP.state.progress[lesson.id];
-            return `
-              <div class="lesson ${isDone?'done':''}" onclick="toggleLesson('${lesson.id}')">
-                <button class="lesson-check">${isDone?'✓':''}</button>
-                <div class="lesson-body">
-                  <h4>${lesson.title}</h4>
-                  <div class="games">${lesson.games}</div>
-                </div>
-              </div>
-            `;
-          }).join('')}
-        </div>
-      </div>
-    `;
-  }).join('');
+ const wrap=document.getElementById('levelsWrap');
+ wrap.innerHTML=APP_DATA.PROGRAM.map(level=>{
+ const done=level.lessons.filter(l=>APP.state.progress[l.id]).length,total=level.lessons.length,allDone=done===total;
+ return '<section class="level-card"><div class="level-head"><div class="level-num '+(allDone?'done':'')+'">'+(allDone?'✓':level.id)+'</div><div class="level-title"><h3>'+esc(level.title)+'</h3><p>'+esc(level.desc)+' · '+done+' / '+total+' уроков</p></div></div><div class="level-body open">'+level.lessons.map(lessonMarkup).join('')+'</div></section>';
+ }).join('');
+ const total=APP_DATA.PROGRAM.reduce((n,l)=>n+l.lessons.length,0),done=Object.keys(APP.state.progress).filter(id=>APP_DATA.PROGRAM.some(l=>l.lessons.some(x=>x.id===id))).length;
+ document.getElementById('courseSummaryText').textContent=done+' из '+total+' уроков завершено · '+Math.round(done/total*100)+'% курса';
+ document.getElementById('courseProgress').style.width=(done/total*100)+'%';
 }
-
-window.toggleLesson = function(id) {
-  APP.toggleLesson(id);
-  renderLevels(); // Перерисовываем, чтобы галочка обновилась
-};
-
+window.toggleDetails=function(id){const el=document.getElementById('lesson-'+id);if(!el)return;el.classList.toggle('expanded');const b=el.querySelector('.lesson-open');if(b)b.textContent=el.classList.contains('expanded')?'Свернуть':'Разобрать урок';};
+window.toggleLesson=function(id){APP.toggleLesson(id);renderLevels();const el=document.getElementById('lesson-'+id);if(el)el.classList.add('expanded');};
+function onReady(){renderLevels();}
 APP.boot();
 </script>
-</body>
-</html>
+</body></html>
