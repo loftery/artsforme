@@ -124,13 +124,13 @@ function renderThemes() {
     const need = lockedThemes[id] || 0, isLocked = APP.state.xp < need, isActive = id === current;
     const swatches = [t.vars['--bg'],t.vars['--accent'],t.vars['--accent2']].map(c=>`<i class="theme-swatch" style="background:${c}"></i>`).join('');
     if(isLocked) return `<div class="theme-option locked" aria-label="${t.name}: закрыта до ${need} XP"><div class="theme-preview" style="background:${t.vars['--card']};color:${t.vars['--text']};border-color:${t.vars['--line']}">${swatches}<span>🔒</span></div><strong>${t.name}</strong><small>Откроется на ${need} XP</small><div class="mini-progress"><i style="width:${Math.min(100,APP.state.xp/need*100)}%"></i></div></div>`;
-    return `<button class="theme-option ${isActive?'selected':''}" style="--preview-bg:${t.vars['--card']};--preview-text:${t.vars['--text']};--preview-line:${t.vars['--line']}" onclick="changeTheme('${id}')"><div class="theme-preview">${swatches}<span>${isActive?'✓':'✦'}</span></div><strong>${t.name}</strong><small>${isActive?'Активная тема':'Нажми, чтобы применить'}</small></button>`;
+    return `<button class="theme-option ${isActive?'selected':''}" style="--preview-bg:${t.vars['--card']};--preview-text:${t.vars['--text']};--preview-line:${t.vars['--line']}" onclick="changeTheme('${id}')"><div class="theme-preview">${swatches}<span>${isActive?'✓':''}</span></div><strong>${t.name}</strong><small>${isActive?'Активная тема':'Нажми, чтобы применить'}</small></button>`;
   }).join('');
 }
 function renderRankRoad() {
   document.getElementById('rankRoad').innerHTML = APP.RANKS.map(r=>{
     const reached=APP.state.xp>=r.minXP;
-    return `<div class="rank-step ${reached?'reached':''}"><div class="rank-step-icon">${reached?r.icon:'🔒'}</div><div class="rank-step-copy"><strong>${r.title}</strong><small>${r.minXP} XP · ${reached?'получен':'ещё не открыт'}</small></div>${reached?'<span class="rank-check">✓</span>':''}</div>`;
+    return `<div class="rank-step ${reached?'reached':''}"><div class="rank-step-icon">${reached?r.icon:'🔒'}</div><div class="rank-step-copy"><strong>${r.title}</strong><small>${r.minXP} XP · ${reached?'получен':'ещё не открыт'}</small></div>${reached?'<span class="rank-check"></span>':''}</div>`;
   }).join('');
 }
 window.changeTheme = function(id) {
