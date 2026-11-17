@@ -73,7 +73,15 @@
       </div>
     </div>
 
-    <div class="card">
+        <section class="card achievements-card" aria-labelledby="achievementsTitle">
+      <div class="achievements-heading">
+        <div><h3 id="achievementsTitle">Достижения</h3><p id="achievementsSummary">Собирай награды за свой прогресс</p></div>
+        <span class="achievements-count" id="achievementsCount">0 / 11</span>
+      </div>
+      <div class="achievements-grid" id="achievementsGrid" aria-live="polite"></div>
+    </section>
+
+<div class="card">
       <h3>Совет</h3>
       <p style="font-size:13px; color:var(--muted)" id="tipBox">Загрузка...</p>
     </div>
@@ -111,6 +119,19 @@ function onReady(){
   document.getElementById('progressText').textContent = p.done + ' / ' + p.total;
   document.getElementById('progressFill').style.width = p.percent + '%';
 
+  const unlocked = s.unlockedAch || [];
+  const achievementCount = APP.ACHIEVEMENTS.length;
+  document.getElementById('achievementsCount').textContent = unlocked.length + ' / ' + achievementCount;
+  document.getElementById('achievementsSummary').textContent = unlocked.length === achievementCount
+    ? 'Все награды собраны — отличный результат!'
+    : 'Открыто ' + unlocked.length + ' из ' + achievementCount + ' достижений';
+  document.getElementById('achievementsGrid').innerHTML = APP.ACHIEVEMENTS.map(ach => {
+    const earned = unlocked.includes(ach.id);
+    return '<article class="achievement-item' + (earned ? ' earned' : ' locked') + '">' +
+      '<span class="achievement-icon" aria-hidden="true">' + ach.icon + '</span>' +
+      '<span class="achievement-copy"><strong>' + ach.title + '</strong><small>' + ach.desc + '</small></span>' +
+      '<span class="achievement-state">' + (earned ? 'Получено' : 'Закрыто') + '</span></article>';
+  }).join('');
   document.getElementById('tipBox').textContent = TIPS[Math.floor(Math.random()*TIPS.length)];
   const rank = APP.getRankInfo();
   document.getElementById('dashRankIcon').textContent = rank.current.icon;
