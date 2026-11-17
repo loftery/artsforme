@@ -138,6 +138,7 @@ function toggleLesson(id){
     delete state.progress[id];
   } else {
     state.progress[id] = true;
+    updateStreak();
     if(!state.xpLessonRewards.includes(id)) {
       state.xpLessonRewards.push(id);
       addXP(10, 'урок пройден');
@@ -152,6 +153,7 @@ function toggleTask(id){
     delete state.tasks[id];
   } else {
     state.tasks[id] = 'done';
+    updateStreak();
     if(!state.xpTaskRewards.includes(id)) {
       state.xpTaskRewards.push(id);
       addXP(5, 'задача выполнена');
